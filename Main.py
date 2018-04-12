@@ -53,6 +53,6 @@ class Main(Frame):
 
 
 root = Tk()
-root.title("PolAI")
+root.title("Boulder Bash")
 app = Main(root)
 root.mainloop()
