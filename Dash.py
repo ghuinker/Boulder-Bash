@@ -1,34 +1,38 @@
 from tkinter import *
+from Leader import Leader
+import xlrd
+import math
 
 COLUMNS = 6
 ROWS = 35
-SCORES = [
-#1-3
-[100,200,300],[100,200,300],[100,200,300],
-#4-6
-[100,200,300],[100,200,300],[100,200,300],
-#5-9
-[100,200,300],[100,200,300],[100,200,300],
-#10-12
-[100,200,300],[100,200,300],[100,200,300],
-#13-15
-[100,200,300],[100,200,300],[100,200,300],
-#16-18
-[100,200,300],[100,200,300],[100,200,300],
-#19-21
-[100,200,300],[100,200,300],[100,200,300],
-#22-24
-[100,200,300],[100,200,300],[100,200,300],
-#25-27
-[100,200,300],[100,200,300],[100,200,300],
-#28-30
-[100,200,300],[100,200,300],[100,200,300],
-#31-33
-[800,500,300],[500,500,300],[100,200,300],
-]
-ROUTESCORELEN = len(SCORES[0])
+SCORES = []
 
-MIDDLE = 17
+
+MALE = 'm'
+FEMALE = 'f'
+BEGINNER = 'Beginner'
+INTERMEDIATE = 'Intermediate'
+ADVANCED = 'Advanced'
+OPEN = 'Open'
+
+'''
+CLIMBERS = [["Gabe Huinker", MALE, ADVANCED,0], ["Lydia Heydlauff",FEMALE, OPEN,1]]
+'''
+CLIMBERS = []
+
+
+WORKBOOKFILENAME = 'BB18.xlsx'
+
+
+"""Read and Stuff From Excell"""
+
+bk = xlrd.open_workbook(WORKBOOKFILENAME)
+setup = bk.sheet_by_index(0)
+
+
+
+ROUTESCORELEN = len(SCORES[0])
+MIDDLE = math.ciel(SCORES/2.0)
 
 class Dash(Frame):
 
@@ -41,15 +45,18 @@ class Dash(Frame):
         self.lb = Listbox(self, height= 40)
         self.lb.pack()
 
-        #Debug List
+        for climber in CLIMBERS:
+            self.lb.insert(END, climber[0])
+        '''Debug List
         self.lb.insert(END, "Entry")
         for line in range(100):
             self.lb.insert(END, "This is line number " + str(line))
-        #End Debug
+        End Debug'''
+
         self.lb.bind('<<ListboxSelect>>', self.updatePlayer)
 
-        self.selectbutton = Button(self, text="Select", command=None)
-        self.leaderbutton = Button(self, text="Leader", command=None)
+        self.selectbutton = Button(self, text="Full Climbers", command=None)
+        self.leaderbutton = Button(self, text="LeaderBoard", command=self.leaderboard)
 
         self.numberlabels = []
         for route in range(33):
@@ -106,26 +113,17 @@ class Dash(Frame):
 
 
     def updatePlayer(self, e):
-        print(self.lb.curselection())
+        self.namelab.config(text=CLIMBERS[self.lb.curselection()[0]][0])
+        self.sexlbl.config(text=CLIMBERS[self.lb.curselection()[0]][1])
+        self.skilllbl.config(text=CLIMBERS[self.lb.curselection()[0]][2])
+        self.scorelbl.config(text=CLIMBERS[self.lb.curselection()[0]][3])
 
-    def train_go(self):
-        print("TrainGo")
-        if(self.conVar.get()):
-            print("Conservative")
-        if(self.libVar.get()):
-            print("Liberal")
+        #TODO Update variables so the rest of the app knows who I am editting
 
-
-    def test_go(self):
-        print("Self Go")
-
-    def setTestResult(self, text):
-        self.testResult.config(text=text)
-
-    def setTrainResult(self, text):
-        self.trainResult.delete("1.0", END)
-        self.trainResult.config("1.0", text)
-
+    def leaderboard(self):
+        #Display leaderbod
+        window = Toplevel(self)
+        app = Leader(window)
 
 
 root = Tk()
