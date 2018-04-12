@@ -4,8 +4,12 @@ import xlrd
 import xlsxwriter
 import math
 
+SETUP_SCORES = []
+SETUP_CLIMBERS = []
+
+TICKS = []
 SCORES = []
-CLIMBERS = []
+LEADERBOARD = []
 
 
 MALE = 'm'
@@ -25,22 +29,72 @@ class Dash(Frame):
         self.filename = url
         self.bk = xlrd.open_workbook(self.filename)
         self.setup = self.bk.sheet_by_index(0)
+        self.ticks = self.bk.sheet_by_index(1)
+        self.scores = self.bk.sheet_by_index(2)
 
-        self.initclimbers()
-        self.initscores()
-        self.initbuttonstates()
+        self.initSETUP_CLIMBERS()
+        self.initSETUP_SCORES()
+        self.initTICKS()
+        self.initSCORES()
 
         self.grid()
         self.create_widgets()
 
 
     def initbuttonstates(self):
-        self.states = []
-        for route in range(len(SCORES)):
-            self.states.append(None)
+        None
 
-    def initclimbers(self):
-        #Add Climbers
+
+    def initTICKS(self):
+        #Add Ticks
+        row = 1
+        notempty = True
+        global TICKS
+        while(notempty):
+            route = []
+            empty = xlrd.empty_cell.value
+            try:
+                self.setup.cell(row, 0)
+            except:
+                break
+            col = 1
+            while(True):
+                    try:
+                        route.append(int(self.ticks.cell(row, col).value))
+                        col = col+1
+                    except:
+                        break
+            TICKS.append(route)
+            row = row+1
+        TICKS = TICKS[:-1]
+        self.initbuttonstates()
+
+    def initSCORES(self):
+        #Add Scores
+        row = 1
+        notempty = True
+        global SCORES
+        while(notempty):
+            route = []
+            empty = xlrd.empty_cell.value
+            try:
+                self.scores.cell(row, 0)
+            except:
+                break
+            col = 1
+            while(True):
+                    try:
+                        route.append(int(self.scores.cell(row, col).value))
+                        col = col+1
+                    except:
+                        break
+            SCORES.append(route)
+            row = row+1
+        print(SCORES)
+
+
+    def initSETUP_CLIMBERS(self):
+        #Add SETUP_CLIMBERS
         row = 1
         notempty = True
         while(notempty):
@@ -58,11 +112,11 @@ class Dash(Frame):
             if notempty == False:
                 break
             else:
-                CLIMBERS.append(climber)
+                SETUP_CLIMBERS.append(climber)
                 row = row+1
 
-    def initscores(self):
-        #Add RouteScores
+    def initSETUP_SCORES(self):
+        #Add RouteSETUP_SCORES
         row = 1
         notempty = True
         while(notempty):
@@ -79,17 +133,17 @@ class Dash(Frame):
                         col = col+1
                     except:
                         break
-            SCORES.append(route)
+            SETUP_SCORES.append(route)
             row = row+1
 
-        self.routescorelen = len(SCORES[0])
-        self.middle = math.ceil(len(SCORES)/2.0)
+        self.routescorelen = len(SETUP_SCORES[0])
+        self.middle = math.ceil(len(SETUP_SCORES)/2.0)
 
     def create_widgets(self):
         self.lb = Listbox(self, height= 40)
         self.lb.pack()
 
-        for climber in CLIMBERS:
+        for climber in SETUP_CLIMBERS:
             self.lb.insert(END, climber[0])
 
         self.lb.bind('<<ListboxSelect>>', self.updatePlayer)
@@ -98,7 +152,7 @@ class Dash(Frame):
         self.leaderbutton = Button(self, text="LeaderBoard", command=self.leaderboard)
 
         self.numberlabels = []
-        for route in range(len(SCORES)):
+        for route in range(len(SETUP_SCORES)):
             label = Label(self, text = str(route + 1), font='Helvetica 18 bold')
             self.numberlabels.append(label)
 
@@ -109,13 +163,12 @@ class Dash(Frame):
 
 
         self.scorebuts = []
-        for id, routes in enumerate(SCORES):
+        for id, routes in enumerate(SETUP_SCORES):
             temp =[]
             for score in routes:
-                print(str(id))
                 check = Checkbutton(self, text=str(score),
-                variable = self.states[id], font='Helvetica 12',
-                command=self.updateScores)
+                variable = None, font='Helvetica 12',
+                command=self.updateSETUP_SCORES)
                 temp.append(check)
             self.scorebuts.append(temp)
 
@@ -156,27 +209,26 @@ class Dash(Frame):
 
 
     def updatePlayer(self, e):
-        self.namelab.config(text=CLIMBERS[self.lb.curselection()[0]][0])
-        self.sexlbl.config(text=CLIMBERS[self.lb.curselection()[0]][1])
-        self.skilllbl.config(text=CLIMBERS[self.lb.curselection()[0]][2])
-        self.scorelbl.config(text=CLIMBERS[self.lb.curselection()[0]][3])
+        self.namelab.config(text=SETUP_CLIMBERS[self.lb.curselection()[0]][0])
+        self.sexlbl.config(text=SETUP_CLIMBERS[self.lb.curselection()[0]][1])
+        self.skilllbl.config(text=SETUP_CLIMBERS[self.lb.curselection()[0]][2])
+        self.scorelbl.config(text=SETUP_CLIMBERS[self.lb.curselection()[0]][3])
 
         #TODO Update variables so the rest of the app knows who I am editting
-    def updateScores(self):
+    def updateSETUP_SCORES(self):
         try:
             self.ticks = self.bk.sheet_by_index(1)
         except:
             self.createTicks()
 
-    def createTicks(self):
-        wrkbk = xlsxwriter.Workbook(self.filename)
-        ticks = workbook.add_worksheet("Ticks")
-        for rows in len(CLIMBERS):
-            for col in len(SCORES):
-                ticks.write(row, col, 0)
-        wrkbk.close()
 
     def leaderboard(self):
         #Display leaderbod
         window = Toplevel(self)
         app = Leader(window)
+
+''' DEBUG '''
+root = Tk()
+root.title("PolAI")
+app = Dash(root, "BB18.xlsx")
+root.mainloop()
