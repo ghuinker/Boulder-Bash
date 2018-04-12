@@ -24,6 +24,7 @@ class Main(Frame):
     def create(self):
         try:
             xlrd.open_workbook(self.excelname.get("1.0", 'end-1c') + '.xlsx')
+            self.dash()
         except:
             print("creating New File")
             workbook = xlsxwriter.Workbook(self.excelname.get("1.0", 'end-1c') + '.xlsx')
@@ -39,8 +40,9 @@ class Main(Frame):
             print("saved")
             workbook.close()
             self.updateexcel()
+            self.updatesetup()
 
-        self.dash()
+
 
     def updateexcel():
         None
@@ -50,6 +52,11 @@ class Main(Frame):
     def open(self):
         window = Toplevel(self)
         app = Dash(window, self.excelname.get("1.0", 'end-1c') + '.xlsx')
+
+    def updatesetup(self):
+        window = Toplevel(self):
+        label = Label(window, text= "Excel Created \nUpdate The Setup Excel Sheet")
+        label.pack()
 
 
 root = Tk()

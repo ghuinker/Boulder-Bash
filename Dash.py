@@ -44,6 +44,8 @@ class Dash(Frame):
         self.grid()
         self.create_widgets()
 
+        self.save()
+
     def initroutestates(self):
         self.states = []
         for row, routes in enumerate(SETUP_SCORES):
@@ -255,6 +257,67 @@ class Dash(Frame):
         #Display leaderbod
         window = Toplevel(self)
         app = Leader(window)
+
+    def save(self):
+        newbk = xlsxwriter.Workbook("testfile.xlsx")
+
+        setup = newbk.add_worksheet("Setup")
+        attempts = newbk.add_worksheet("Attempts")
+        scores = newbk.add_worksheet("Scores")
+        LeaderBoard = newbk.add_worksheet("LeaderBoard")
+
+        '''Setup Write'''
+        setup.write('A1', 'First Name')
+        setup.write('B1', 'Last Name')
+        setup.write('C1', 'Sex')
+        setup.write('D1', 'Level')
+        setup.write('E1', 'Score')
+
+        setup.write('G1', 'Route')
+        setup.write('H1', 'Scores')
+
+        for rows, climber in enumerate(self.setupclimbers):
+            for cols, el in enumerate(climber):
+                if cols ==0:
+                    name = el.split(" ")
+                    setup.write(rows +1, cols, name[0])
+                    setup.write(rows +1, cols+1, name[1])
+                else:
+                    setup.write(rows +1, cols+1, el)
+
+        for rows, routes in enumerate(self.setupscores):
+            rows = rows + 1
+            setup.write(rows, 6, rows)
+            for cols, score in enumerate(routes):
+                setup.write(rows, cols + 7, score)
+
+        '''Attempts Write'''
+        attempts.write('A1', 'Climber')
+
+        for cols in range(len(self.setupscores)):
+            attempts.write(0, cols +1, cols+1)
+
+        for rows, climber in enumerate(self.setupclimbers):
+            attempts.write(rows+1, 0, climber[0])
+
+        for rows, climber in enumerate(self.attempts):
+            for cols, el in enumerate(climber):
+                attempts.write(rows+1, cols+1, el)
+
+        '''Scores Write'''
+        scores.write('A1', 'Climber')
+
+        for cols in range(len(self.setupscores)):
+            scores.write(0, cols +1, cols+1)
+
+        for rows, climber in enumerate(self.setupclimbers):
+            scores.write(rows+1, 0, climber[0])
+
+
+        '''LeaderBoard Write'''
+
+        newbk.close()
+
 
 ''' DEBUG '''
 root = Tk()
