@@ -221,7 +221,16 @@ class Dash(Frame):
 
 
     def updateATTEMPTS(self):
-        None
+        if self.curclimber is not None:
+            climber = self.attempts[self.curclimber]
+            for row, routes in enumerate(self.states):
+                for col, state in enumerate(routes):
+                    if routes[col].get() == True:
+                        climber[row] = col +1
+                    else:
+                        climber[row] = 0
+
+
     def updatePlayer(self, e):
         self.namelab.config(text=SETUP_CLIMBERS[self.lb.curselection()[0]][0])
         self.sexlbl.config(text=SETUP_CLIMBERS[self.lb.curselection()[0]][1])
@@ -234,7 +243,7 @@ class Dash(Frame):
             for cols in rows:
                 cols.set(0)
 
-        ticks = ATTEMPTS[self.curclimber]
+        ticks = self.attempts[self.curclimber]
         for id,  route in enumerate(ticks):
             if route == 0:
                 continue
