@@ -223,18 +223,27 @@ class Dash(Frame):
 
     def update(self):
         self.updateATTEMPTS()
+        self.updatescores()
         self.save()
+
+    def updatescores(self):
+        None
 
 
     def updateATTEMPTS(self):
         if self.curclimber is not None:
             climber = self.attempts[self.curclimber]
             for row, routes in enumerate(self.states):
+                falseroutes = 0
                 for col, state in enumerate(routes):
                     if routes[col].get() == True:
                         climber[row] = col +1
+                    else:
+                        print(False)
+                        falseroutes = falseroutes +1
 
-
+                if(falseroutes == col+1):
+                    climber[row] = 0
 
 
     def updatePlayer(self, e):
