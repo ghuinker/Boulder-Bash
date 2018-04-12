@@ -182,7 +182,7 @@ class Dash(Frame):
                 check = Checkbutton(self, text=str(score),
                 variable = self.states[row][col],
                 font='Helvetica 12',
-                command=self.updateATTEMPTS)
+                command=self.update)
                 temp.append(check)
             self.scorebuts.append(temp)
 
@@ -221,6 +221,10 @@ class Dash(Frame):
 
 
 
+    def update(self):
+        self.updateATTEMPTS()
+        self.save()
+
 
     def updateATTEMPTS(self):
         if self.curclimber is not None:
@@ -229,8 +233,8 @@ class Dash(Frame):
                 for col, state in enumerate(routes):
                     if routes[col].get() == True:
                         climber[row] = col +1
-                    else:
-                        climber[row] = 0
+
+
 
 
     def updatePlayer(self, e):
