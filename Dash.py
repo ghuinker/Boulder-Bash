@@ -1,6 +1,6 @@
 from tkinter import *
 from Leader import Leader
-import xlrd
+import xlrd, xlwt
 import math
 
 COLUMNS = 6
@@ -29,10 +29,51 @@ WORKBOOKFILENAME = 'BB18.xlsx'
 bk = xlrd.open_workbook(WORKBOOKFILENAME)
 setup = bk.sheet_by_index(0)
 
+#Add Climbers
+row = 1
+notempty = True
+while(notempty):
+    firstname, lastname, sex, skilllevel = '', '','',''
+    empty = xlrd.empty_cell.value
 
+    firstname = setup.cell(row,0).value
+    lastname = setup.cell(row, 1).value
+    sex = setup.cell(row, 2).value
+    skilllevel = setup.cell(row, 3).value
+    climber = [firstname + " " + lastname, sex, skilllevel, 0]
+    for entry in climber:
+        if entry == empty:
+            notempty = False
+    if notempty == False:
+        break
+    else:
+        CLIMBERS.append(climber)
+        row = row+1
+
+#Add RouteScores
+row = 1
+notempty = True
+while(notempty):
+    route = []
+    empty = xlrd.empty_cell.value
+    try:
+        setup.cell(row, 5)
+    except:
+        break
+
+    col = 6
+    while(True):
+        if setup.cell(row, col).value != empty:
+            route.append(int(setup.cell(row, col).value))
+            col = col+1
+        else:
+            break
+
+    SCORES.append(route)
+    row = row+1
 
 ROUTESCORELEN = len(SCORES[0])
-MIDDLE = math.ciel(SCORES/2.0)
+MIDDLE = math.ceil(len(SCORES)/2.0)
 
 class Dash(Frame):
 
@@ -60,7 +101,7 @@ class Dash(Frame):
 
         self.numberlabels = []
         for route in range(33):
-            label = Label(self, text = str(route + 1))
+            label = Label(self, text = str(route + 1), font='Helvetica 18 bold')
             self.numberlabels.append(label)
 
         self.namelab = Label(self, text = "Name")
@@ -68,11 +109,12 @@ class Dash(Frame):
         self.skilllbl = Label(self, text="Advanced")
         self.scorelbl = Label(self, text=str(22))
 
+
         self.scorebuts = []
         for routes in SCORES:
             temp =[]
             for score in routes:
-                check = Checkbutton(self, text=str(score), variable = None)
+                check = Checkbutton(self, text=str(score), variable = None, font='Helvetica 12')
                 temp.append(check)
             self.scorebuts.append(temp)
 
