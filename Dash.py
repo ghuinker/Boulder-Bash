@@ -1,10 +1,9 @@
 from tkinter import *
 from Leader import Leader
-import xlrd, xlwt
+import xlrd
+import xlsxwriter
 import math
 
-COLUMNS = 6
-ROWS = 35
 SCORES = []
 
 
@@ -15,72 +14,70 @@ INTERMEDIATE = 'Intermediate'
 ADVANCED = 'Advanced'
 OPEN = 'Open'
 
-'''
-CLIMBERS = [["Gabe Huinker", MALE, ADVANCED,0], ["Lydia Heydlauff",FEMALE, OPEN,1]]
-'''
 CLIMBERS = []
 
 
-WORKBOOKFILENAME = 'BB18.xlsx'
-
-
-"""Read and Stuff From Excell"""
-
-bk = xlrd.open_workbook(WORKBOOKFILENAME)
-setup = bk.sheet_by_index(0)
-
-#Add Climbers
-row = 1
-notempty = True
-while(notempty):
-    firstname, lastname, sex, skilllevel = '', '','',''
-    empty = xlrd.empty_cell.value
-
-    firstname = setup.cell(row,0).value
-    lastname = setup.cell(row, 1).value
-    sex = setup.cell(row, 2).value
-    skilllevel = setup.cell(row, 3).value
-    climber = [firstname + " " + lastname, sex, skilllevel, 0]
-    for entry in climber:
-        if entry == empty:
-            notempty = False
-    if notempty == False:
-        break
-    else:
-        CLIMBERS.append(climber)
-        row = row+1
-
-#Add RouteScores
-row = 1
-notempty = True
-while(notempty):
-    route = []
-    empty = xlrd.empty_cell.value
-    try:
-        setup.cell(row, 5)
-    except:
-        break
-
-    col = 6
-    while(True):
-        if setup.cell(row, col).value != empty:
-            route.append(int(setup.cell(row, col).value))
-            col = col+1
-        else:
-            break
-
-    SCORES.append(route)
-    row = row+1
-
-ROUTESCORELEN = len(SCORES[0])
-MIDDLE = math.ceil(len(SCORES)/2.0)
-
 class Dash(Frame):
 
-    def __init__(self, master):
+    def __init__(self, master, url):
         Frame.__init__(self, master)
+        self.filename = url
+        self.bk = xlrd.open_workbook(self.filename)
+        self.setup = self.bk.sheet_by_index(0)
+
+        self.initclimbers()
+        self.initscores()
+
         self.grid()
         self.create_widgets()
+
+
+
+    def initclimbers(self):
+        #Add Climbers
+        row = 1
+        notempty = True
+        while(notempty):
+            firstname, lastname, sex, skilllevel = '', '','',''
+            empty = xlrd.empty_cell.value
+
+            firstname = self.setup.cell(row,0).value
+            lastname = self.setup.cell(row, 1).value
+            sex = self.setup.cell(row, 2).value
+            skilllevel = self.setup.cell(row, 3).value
+            climber = [firstname + " " + lastname, sex, skilllevel, 0]
+            for entry in climber:
+                if entry == empty:
+                    notempty = False
+            if notempty == False:
+                break
+            else:
+                CLIMBERS.append(climber)
+                row = row+1
+
+    def initscores(self):
+        #Add RouteScores
+        row = 1
+        notempty = True
+        while(notempty):
+            route = []
+            empty = xlrd.empty_cell.value
+            try:
+                self.setup.cell(row, 5)
+            except:
+                break
+            col = 6
+            while(True):
+                    try:
+                        route.append(int(self.setup.cell(row, col).value))
+                        col = col+1
+                    except:
+                        break
+            SCORES.append(route)
+            row = row+1
+
+        self.routescorelen = len(SCORES[0])
+        self.middle = math.ceil(len(SCORES)/2.0)
 
     def create_widgets(self):
         self.lb = Listbox(self, height= 40)
@@ -100,7 +97,7 @@ class Dash(Frame):
         self.leaderbutton = Button(self, text="LeaderBoard", command=self.leaderboard)
 
         self.numberlabels = []
-        for route in range(33):
+        for route in range(len(SCORES)):
             label = Label(self, text = str(route + 1), font='Helvetica 18 bold')
             self.numberlabels.append(label)
 
@@ -127,12 +124,12 @@ class Dash(Frame):
         self.leaderbutton.grid(row=33, column=1)
 
         col = 3
-        nextcol = col + ROUTESCORELEN + 2
+        nextcol = col + self.routescorelen + 2
         row = 1
         for id, label in enumerate(self.numberlabels):
-            if(id>MIDDLE):
+            if(id>self.middle):
                 col = nextcol
-                row=-MIDDLE
+                row=-self.middle
             label.grid(row=id+row, column = col)
 
 
@@ -146,9 +143,9 @@ class Dash(Frame):
         row=1
         for rowid, route in enumerate(self.scorebuts):
             for colid, check in enumerate(route):
-                if(rowid>MIDDLE):
+                if(rowid>self.middle):
                     col = nextcol
-                    row=-MIDDLE
+                    row=-self.middle
                 check.grid(row=rowid+row, column=colid+col, pady= (0,0))
 
 
@@ -161,14 +158,9 @@ class Dash(Frame):
         self.scorelbl.config(text=CLIMBERS[self.lb.curselection()[0]][3])
 
         #TODO Update variables so the rest of the app knows who I am editting
-
+    def updateScores(self):
+        None
     def leaderboard(self):
         #Display leaderbod
         window = Toplevel(self)
         app = Leader(window)
-
-
-root = Tk()
-root.title("PolAI")
-app = Dash(root)
-root.mainloop()
