@@ -5,6 +5,7 @@ import xlsxwriter
 import math
 
 SCORES = []
+CLIMBERS = []
 
 
 MALE = 'm'
@@ -14,7 +15,7 @@ INTERMEDIATE = 'Intermediate'
 ADVANCED = 'Advanced'
 OPEN = 'Open'
 
-CLIMBERS = []
+
 
 
 class Dash(Frame):
@@ -27,11 +28,16 @@ class Dash(Frame):
 
         self.initclimbers()
         self.initscores()
+        self.initbuttonstates()
 
         self.grid()
         self.create_widgets()
 
 
+    def initbuttonstates(self):
+        self.states = []
+        for route in range(len(SCORES)):
+            self.states.append(None)
 
     def initclimbers(self):
         #Add Climbers
@@ -85,11 +91,6 @@ class Dash(Frame):
 
         for climber in CLIMBERS:
             self.lb.insert(END, climber[0])
-        '''Debug List
-        self.lb.insert(END, "Entry")
-        for line in range(100):
-            self.lb.insert(END, "This is line number " + str(line))
-        End Debug'''
 
         self.lb.bind('<<ListboxSelect>>', self.updatePlayer)
 
@@ -108,10 +109,13 @@ class Dash(Frame):
 
 
         self.scorebuts = []
-        for routes in SCORES:
+        for id, routes in enumerate(SCORES):
             temp =[]
             for score in routes:
-                check = Checkbutton(self, text=str(score), variable = None, font='Helvetica 12')
+                print(str(id))
+                check = Checkbutton(self, text=str(score),
+                variable = self.states[id], font='Helvetica 12',
+                command=self.updateScores)
                 temp.append(check)
             self.scorebuts.append(temp)
 
@@ -159,7 +163,19 @@ class Dash(Frame):
 
         #TODO Update variables so the rest of the app knows who I am editting
     def updateScores(self):
-        None
+        try:
+            self.ticks = self.bk.sheet_by_index(1)
+        except:
+            self.createTicks()
+
+    def createTicks(self):
+        wrkbk = xlsxwriter.Workbook(self.filename)
+        ticks = workbook.add_worksheet("Ticks")
+        for rows in len(CLIMBERS):
+            for col in len(SCORES):
+                ticks.write(row, col, 0)
+        wrkbk.close()
+
     def leaderboard(self):
         #Display leaderbod
         window = Toplevel(self)

@@ -38,9 +38,12 @@ class Main(Frame):
 
             print("saved")
             workbook.close()
+            self.updateexcel()
 
         self.dash()
 
+    def updateexcel():
+        None
     def dash(self):
         window= Toplevel(self)
         app = Dash(window, self.excelname.get("1.0", 'end-1c') + '.xlsx')
