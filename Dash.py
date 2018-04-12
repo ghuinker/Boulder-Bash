@@ -26,7 +26,6 @@ class Dash(Frame):
     def __init__(self, master, url):
         Frame.__init__(self, master)
 
-        self.leaderboard = []
         self.routestates = []
         self.curclimber = 0
         self.score = 0
@@ -77,7 +76,6 @@ class Dash(Frame):
                         break
             ATTEMPTS.append(route)
             row = row+1
-        ATTEMPTS = ATTEMPTS[:-1]
         self.attempts = ATTEMPTS
         self.initroutestates()
 
@@ -114,10 +112,14 @@ class Dash(Frame):
             firstname, lastname, sex, skilllevel = '', '','',''
             empty = xlrd.empty_cell.value
 
-            firstname = self.setup.cell(row,0).value
-            lastname = self.setup.cell(row, 1).value
-            sex = self.setup.cell(row, 2).value
-            skilllevel = self.setup.cell(row, 3).value
+            try:
+                firstname = self.setup.cell(row,0).value
+                lastname = self.setup.cell(row, 1).value
+                sex = self.setup.cell(row, 2).value
+                skilllevel = self.setup.cell(row, 3).value
+            except:
+                break
+
             climber = [firstname + " " + lastname, sex, skilllevel, 0]
             for entry in climber:
                 if entry == empty:
@@ -163,8 +165,8 @@ class Dash(Frame):
 
         self.lb.bind('<<ListboxSelect>>', self.updatePlayer)
 
-        self.selectbutton = Button(self, text="Full Climbers", command=None)
-        self.leaderbutton = Button(self, text="LeaderBoard", command=self.leaderboard)
+        self.selectbutton = Button(self, text="LeaderBoard", command=self.leaderboard)
+        self.leaderbutton = Button(self, text="Full Roster", command=None)
 
         self.numberlabels = []
         for route in range(len(SETUP_SCORES)):
@@ -233,10 +235,8 @@ class Dash(Frame):
         if self.curclimber is not None:
             climber = self.attempts[self.curclimber]
 
-        print(climber)
         for route, attempt in enumerate(climber):
             add = 0
-            print(str(route) + " " + str(attempt))
             if attempt != 0:
                 add = self.setupscores[route][attempt-1]
             self.score = self.score + add
@@ -331,17 +331,49 @@ class Dash(Frame):
 
         '''Scores Write'''
         scores.write('A1', 'Climber')
+        scores.write('B1', 'Score')
 
         for cols in range(len(self.setupscores)):
-            scores.write(0, cols +1, cols+1)
+            scores.write(0, cols +2, cols+1)
 
         for rows, climber in enumerate(self.setupclimbers):
             scores.write(rows+1, 0, climber[0])
 
 
+
+        for id, climber in enumerate(self.attempts):
+            for route, attempt in enumerate(climber):
+                add = 0
+                if attempt != 0:
+                    add = self.setupscores[route][attempt-1]
+                    scores.write(id+1, route + 2, add)
+                score = score + add
+            scores.write(id+1, 1, score)
+
+
+
+
         '''LeaderBoard Write'''
 
         newbk.close()
+
+    def leaderboard(self):
+        leaders = []
+
+        for climber in self.setupclimbers:
+            leaders.append([climber[0], climber[1], climber[2]])
+
+        for id, climber in enumerate(self.attempts):
+            score = 0
+            for route, attempt in enumerate(climber):
+                add = 0
+                if attempt != 0:
+                    add = self.setupscores[route][attempt-1]
+                score = score + add
+            leaders[id].append(score)
+
+        window = Toplevel(self)
+        app = Leader(window, leaders)
 
 
 ''' DEBUG '''
