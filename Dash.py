@@ -230,8 +230,15 @@ class Dash(Frame):
 
         self.curclimber = self.lb.curselection()[0]
 
+        for rows in self.states:
+            for cols in rows:
+                cols.set(0)
+
         ticks = ATTEMPTS[self.curclimber]
         for id,  route in enumerate(ticks):
+            if route == 0:
+                continue
+            route = route -1
             self.states[id][route].set(1)
 
 
