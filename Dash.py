@@ -29,6 +29,7 @@ class Dash(Frame):
         self.leaderboard = []
         self.routestates = []
         self.curclimber = 0
+        self.score = 0
 
         self.filename = url
         self.bk = xlrd.open_workbook(self.filename)
@@ -104,6 +105,7 @@ class Dash(Frame):
         self.scores = SCORES
 
 
+
     def initSETUP_CLIMBERS(self):
         #Add SETUP_CLIMBERS
         row = 1
@@ -172,7 +174,7 @@ class Dash(Frame):
         self.namelab = Label(self, text = "Name")
         self.sexlbl = Label(self, text="Sex")
         self.skilllbl = Label(self, text="Advanced")
-        self.scorelbl = Label(self, text=str(22))
+        self.scorelbl = Label(self, text=self.score)
 
 
         self.scorebuts = []
@@ -223,12 +225,22 @@ class Dash(Frame):
 
     def update(self):
         self.updateATTEMPTS()
-        self.updatescores()
+        self.updatescore()
         self.save()
 
-    def updatescores(self):
-        None
+    def updatescore(self):
+        self.score = 0
+        if self.curclimber is not None:
+            climber = self.attempts[self.curclimber]
 
+        print(climber)
+        for route, attempt in enumerate(climber):
+            add = 0
+            print(str(route) + " " + str(attempt))
+            if attempt != 0:
+                add = self.setupscores[route][attempt-1]
+            self.score = self.score + add
+        self.scorelbl.config(text=str(self.score))
 
     def updateATTEMPTS(self):
         if self.curclimber is not None:
@@ -239,7 +251,6 @@ class Dash(Frame):
                     if routes[col].get() == True:
                         climber[row] = col +1
                     else:
-                        print(False)
                         falseroutes = falseroutes +1
 
                 if(falseroutes == col+1):
@@ -264,6 +275,7 @@ class Dash(Frame):
                 continue
             route = route -1
             self.states[id][route].set(1)
+        self.updatescore()
 
 
     def leaderboard(self):
