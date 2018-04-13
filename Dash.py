@@ -64,7 +64,7 @@ class Dash(Frame):
             route = []
             for col in range(len(self.setupscores)):
                 try:
-                    route.append(int(self.attempts.cell(row, col+1).value))
+                    route.append(int(self.attempts.cell(row+1, col+1).value))
                 except:
                     route.append(0)
             ATTEMPTS.append(route)
@@ -277,7 +277,7 @@ class Dash(Frame):
 
     def save(self):
         newbk = xlsxwriter.Workbook(self.filename)
-        
+
         setup = newbk.add_worksheet("Setup")
         attempts = newbk.add_worksheet("Attempts")
         scores = newbk.add_worksheet("Scores")
@@ -330,8 +330,6 @@ class Dash(Frame):
 
         for rows, climber in enumerate(self.setupclimbers):
             scores.write(rows+1, 0, climber[0])
-
-
 
         for id, climber in enumerate(self.attempts):
             score = 0

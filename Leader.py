@@ -1,4 +1,5 @@
 from tkinter import *
+from operator import itemgetter
 
 MALE = 0
 FEMALE = 1
@@ -143,10 +144,7 @@ class Leader(Frame):
                 skill = OPEN
             self.leaders[sex][skill].append([climber[0], climber[3]])
 
-
-
-    def sort(self):
-        sorted(self.leaders, key=self.getKey)
-
-    def getKey(self, item):
-        return item[1]
+        for sex in self.leaders:
+            for skill in sex:
+                if not not skill:
+                    skill = skill.sort(key = lambda x: x[1], reverse=True)
