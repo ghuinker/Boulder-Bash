@@ -59,7 +59,19 @@ class Dash(Frame):
         #Add Ticks
         row = 1
         notempty = True
-        global ATTEMPTS
+
+        for row in range(len(self.setupclimbers)):
+            route = []
+            for col in range(len(self.setupscores)):
+                try:
+                    route.append(int(self.attempts.cell(row, col+1).value))
+                except:
+                    route.append(0)
+            ATTEMPTS.append(route)
+        self.attempts = ATTEMPTS
+        self.initroutestates()
+
+        '''
         while(notempty):
             route = []
             empty = xlrd.empty_cell.value
@@ -78,7 +90,7 @@ class Dash(Frame):
             row = row+1
         self.attempts = ATTEMPTS
         self.initroutestates()
-
+        '''
     def initSCORES(self):
         #Add Scores
         row = 1
