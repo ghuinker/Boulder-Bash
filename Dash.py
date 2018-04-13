@@ -71,26 +71,6 @@ class Dash(Frame):
         self.attempts = ATTEMPTS
         self.initroutestates()
 
-        '''
-        while(notempty):
-            route = []
-            empty = xlrd.empty_cell.value
-            try:
-                self.setup.cell(row, 0)
-            except:
-                break
-            col = 1
-            while(True):
-                    try:
-                        route.append(int(self.attempts.cell(row, col).value))
-                        col = col+1
-                    except:
-                        break
-            ATTEMPTS.append(route)
-            row = row+1
-        self.attempts = ATTEMPTS
-        self.initroutestates()
-        '''
     def initSCORES(self):
         #Add Scores
         row = 1
@@ -296,8 +276,8 @@ class Dash(Frame):
         app = Leader(window)
 
     def save(self):
-        newbk = xlsxwriter.Workbook("testfile.xlsx")
-
+        newbk = xlsxwriter.Workbook(self.filename)
+        
         setup = newbk.add_worksheet("Setup")
         attempts = newbk.add_worksheet("Attempts")
         scores = newbk.add_worksheet("Scores")
