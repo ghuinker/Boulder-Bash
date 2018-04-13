@@ -354,6 +354,7 @@ class Dash(Frame):
 
 
         for id, climber in enumerate(self.attempts):
+            score = 0
             for route, attempt in enumerate(climber):
                 add = 0
                 if attempt != 0:
