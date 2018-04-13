@@ -29,6 +29,11 @@ class Main(Frame):
             print("creating New File")
             workbook = xlsxwriter.Workbook(self.excelname.get("1.0", 'end-1c') + '.xlsx')
             setup = workbook.add_worksheet("Setup")
+            attempts = workbook.add_worksheet("Attempts")
+            scores = workbook.add_worksheet("Scores")
+            LeaderBoard = workbook.add_worksheet("LeaderBoard")
+
+            '''Setup Write'''
             setup.write('A1', 'First Name')
             setup.write('B1', 'Last Name')
             setup.write('C1', 'Sex')
@@ -37,6 +42,11 @@ class Main(Frame):
             setup.write('G1', 'Route')
             setup.write('H1', 'Scores')
 
+
+            '''Attempts Write'''
+            attempts.write('A1', 'Climber')
+
+
             print("saved")
             workbook.close()
             self.updateexcel()
@@ -44,19 +54,26 @@ class Main(Frame):
 
 
 
-    def updateexcel():
+    def updateexcel(self):
         None
+        
     def dash(self):
         window= Toplevel(self)
         app = Dash(window, self.excelname.get("1.0", 'end-1c') + '.xlsx')
+        self.quit()
+
     def open(self):
         window = Toplevel(self)
         app = Dash(window, self.excelname.get("1.0", 'end-1c') + '.xlsx')
 
     def updatesetup(self):
-        window = Toplevel(self):
-        label = Label(window, text= "Excel Created \nUpdate The Setup Excel Sheet")
-        label.pack()
+        window = Toplevel(self)
+        frame = Frame(window, width=100, height=50)
+        frame.place(x=700, y=0)
+        label = Label(frame, text="Go Update Setup").pack()
+
+    def quit(self):
+        self.root.destroy()
 
 
 root = Tk()

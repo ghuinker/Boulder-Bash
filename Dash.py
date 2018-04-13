@@ -41,10 +41,10 @@ class Dash(Frame):
         self.initATTEMPTS()
         self.initSCORES()
 
+
         self.grid()
         self.create_widgets()
 
-        self.save()
 
     def initroutestates(self):
         self.states = []
@@ -97,24 +97,43 @@ class Dash(Frame):
 
 
     def initSETUP_CLIMBERS(self):
+
+        empty = xlrd.empty_cell.value
+        set = self.setup
+
+        row = 1
+
+        while(True):
+            try:
+                if set.cell(row,0).value ==empty:
+                    break
+            except:
+                break
+            else:
+                SETUP_CLIMBERS.append(
+                [set.cell(row,0).value + " " + set.cell(row,1).value,
+                 set.cell(row,2).value, set.cell(row,3).value, 0]  )
+                row = row +1
+        self.setupclimbers = SETUP_CLIMBERS
+
+        '''
         #Add SETUP_CLIMBERS
         row = 1
         notempty = True
         while(notempty):
+            print(self.setup.cell(row, 0).value)
             firstname, lastname, sex, skilllevel = '', '','',''
             empty = xlrd.empty_cell.value
 
-            try:
-                firstname = self.setup.cell(row,0).value
-                lastname = self.setup.cell(row, 1).value
-                sex = self.setup.cell(row, 2).value
-                skilllevel = self.setup.cell(row, 3).value
-            except:
-                break
+            firstname = self.setup.cell(row,0).value
+            lastname = self.setup.cell(row, 1).value
+            sex = self.setup.cell(row, 2).value
+            skilllevel = self.setup.cell(row, 3).value
 
             climber = [firstname + " " + lastname, sex, skilllevel, 0]
             for entry in climber:
                 if entry == empty:
+                    print(climber)
                     notempty = False
             if notempty == False:
                 break
@@ -122,7 +141,7 @@ class Dash(Frame):
                 SETUP_CLIMBERS.append(climber)
                 row = row+1
         self.setupclimbers=SETUP_CLIMBERS
-
+        '''
     def initSETUP_SCORES(self):
         #Add RouteSETUP_SCORES
         row = 1
@@ -141,7 +160,8 @@ class Dash(Frame):
                         col = col+1
                     except:
                         break
-            SETUP_SCORES.append(route)
+            if not not route:
+                SETUP_SCORES.append(route)
             row = row+1
 
         self.routescorelen = len(SETUP_SCORES[0])
@@ -181,8 +201,6 @@ class Dash(Frame):
                 command=self.update)
                 temp.append(check)
             self.scorebuts.append(temp)
-
-
 
 
         #Add TO Grid
@@ -276,6 +294,9 @@ class Dash(Frame):
         app = Leader(window)
 
     def save(self):
+
+        debugsave = "testfile.xlsx"
+
         newbk = xlsxwriter.Workbook(self.filename)
 
         setup = newbk.add_worksheet("Setup")
@@ -288,7 +309,6 @@ class Dash(Frame):
         setup.write('B1', 'Last Name')
         setup.write('C1', 'Sex')
         setup.write('D1', 'Level')
-        setup.write('E1', 'Score')
 
         setup.write('G1', 'Route')
         setup.write('H1', 'Scores')
@@ -296,9 +316,9 @@ class Dash(Frame):
         for rows, climber in enumerate(self.setupclimbers):
             for cols, el in enumerate(climber):
                 if cols ==0:
-                    name = el.split(" ")
-                    setup.write(rows +1, cols, name[0])
-                    setup.write(rows +1, cols+1, name[1])
+                    names = el.split(" ")
+                    for namecol, name in enumerate(names):
+                        setup.write(rows +1, cols+namecol, name)
                 else:
                     setup.write(rows +1, cols+1, el)
 
@@ -367,8 +387,9 @@ class Dash(Frame):
         app = Leader(window, leaders)
 
 
-''' DEBUG '''
+''' DEBUG
 root = Tk()
 root.title("PolAI")
-app = Dash(root, "BB18.xlsx")
+app = Dash(root, "bbtest.xlsx")
 root.mainloop()
+'''

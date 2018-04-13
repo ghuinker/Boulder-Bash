@@ -63,7 +63,7 @@ class Leader(Frame):
         self.beg.grid(row=7, column=3)
         try:
             for i in range(5):
-                Label(self, text = self.leaders[MALE][BEGINNER][i]).grid(row=2+i, column=3)
+                Label(self, text = self.leaders[MALE][BEGINNER][i]).grid(row=8+i, column=3)
         except:
             print("Not Enough Male BEGINNER")
 
