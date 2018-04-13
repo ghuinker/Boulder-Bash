@@ -49,18 +49,17 @@ class Main(Frame):
 
             print("saved")
             workbook.close()
-            self.updateexcel()
             self.updatesetup()
+            self.quit()
 
 
 
     def updateexcel(self):
         None
-        
+
     def dash(self):
         window= Toplevel(self)
         app = Dash(window, self.excelname.get("1.0", 'end-1c') + '.xlsx')
-        self.quit()
 
     def open(self):
         window = Toplevel(self)
@@ -73,7 +72,7 @@ class Main(Frame):
         label = Label(frame, text="Go Update Setup").pack()
 
     def quit(self):
-        self.root.destroy()
+        self.master.destroy()
 
 
 root = Tk()
