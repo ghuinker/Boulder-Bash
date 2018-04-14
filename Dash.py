@@ -54,6 +54,13 @@ class Dash(Frame):
                 temp.append(BooleanVar())
             self.states.append(temp)
 
+        self.extraruns = []
+        for row, routes in enumerate(SETUP_SCORES):
+            var = IntVar()
+            var.set(0)
+            self.extraruns.append(var)
+
+
 
     def initATTEMPTS(self):
         #Add Ticks
@@ -70,6 +77,7 @@ class Dash(Frame):
             ATTEMPTS.append(route)
         self.attempts = ATTEMPTS
         self.initroutestates()
+
 
     def initSCORES(self):
         #Add Scores
@@ -116,32 +124,6 @@ class Dash(Frame):
                 row = row +1
         self.setupclimbers = SETUP_CLIMBERS
 
-        '''
-        #Add SETUP_CLIMBERS
-        row = 1
-        notempty = True
-        while(notempty):
-            print(self.setup.cell(row, 0).value)
-            firstname, lastname, sex, skilllevel = '', '','',''
-            empty = xlrd.empty_cell.value
-
-            firstname = self.setup.cell(row,0).value
-            lastname = self.setup.cell(row, 1).value
-            sex = self.setup.cell(row, 2).value
-            skilllevel = self.setup.cell(row, 3).value
-
-            climber = [firstname + " " + lastname, sex, skilllevel, 0]
-            for entry in climber:
-                if entry == empty:
-                    print(climber)
-                    notempty = False
-            if notempty == False:
-                break
-            else:
-                SETUP_CLIMBERS.append(climber)
-                row = row+1
-        self.setupclimbers=SETUP_CLIMBERS
-        '''
     def initSETUP_SCORES(self):
         #Add RouteSETUP_SCORES
         row = 1
@@ -190,10 +172,20 @@ class Dash(Frame):
         self.skilllbl = Label(self, text="Advanced")
         self.scorelbl = Label(self, text=self.score)
 
-
+        self.attemptmenus = []
         self.scorebuts = []
+
         for row, routes in enumerate(SETUP_SCORES):
+
+            min = len(SETUP_SCORES[0])
+            attemptmenu = OptionMenu(self, self.extraruns[row],0,
+             min+1, min+2, min+3, min+4, min+5, min+7, min+8, min+9, min+10,
+             min+11, min+12, min+13, min+14, min+15, min+17, min+18, min+19, min+20,
+             command=self.updateextraruns)
+            self.attemptmenus.append(attemptmenu)
+
             temp =[]
+
             for col, score in enumerate(routes):
                 check = Checkbutton(self, text=str(score),
                 variable = self.states[row][col],
@@ -229,9 +221,10 @@ class Dash(Frame):
         for rowid, route in enumerate(self.scorebuts):
             for colid, check in enumerate(route):
                 if(rowid>self.middle):
-                    col = nextcol
+                    col = nextcol + 1
                     row=-self.middle
                 check.grid(row=rowid+row, column=colid+col, pady= (0,0))
+                self.attemptmenus[rowid].grid(row=rowid+row, column=colid+col+1, pady= (0,0))
 
 
 
@@ -248,7 +241,10 @@ class Dash(Frame):
         for route, attempt in enumerate(climber):
             add = 0
             if attempt != 0:
-                add = self.setupscores[route][attempt-1]
+                try:
+                    add = self.setupscores[route][attempt-1]
+                except:
+                    add = self.setupscores[route][len(climber)-1]
             self.score = self.score + add
         self.scorelbl.config(text=str(self.score))
 
@@ -257,6 +253,9 @@ class Dash(Frame):
             climber = self.attempts[self.curclimber]
             for row, routes in enumerate(self.states):
                 falseroutes = 0
+
+                print(self.extraruns[row])
+
                 for col, state in enumerate(routes):
                     if routes[col].get() == True:
                         climber[row] = col +1
@@ -266,6 +265,8 @@ class Dash(Frame):
                 if(falseroutes == col+1):
                     climber[row] = 0
 
+    def updateextraruns(self, e):
+        print("update")
 
     def updatePlayer(self, e):
         self.namelab.config(text=SETUP_CLIMBERS[self.lb.curselection()[0]][0])
@@ -284,7 +285,13 @@ class Dash(Frame):
             if route == 0:
                 continue
             route = route -1
-            self.states[id][route].set(1)
+            try:
+                self.states[id][route].set(1)
+            except:
+                #Setup the states if the attempts are past the checkboxes
+                min = len(SETUP_SCORES[0])
+                self.extraruns[id].set(route+1)
+                self.states[id][len(self.states[id])-1].set(1)
         self.updatescore()
 
 
@@ -387,9 +394,8 @@ class Dash(Frame):
         app = Leader(window, leaders)
 
 
-''' DEBUG
+''' DEBUG'''
 root = Tk()
 root.title("PolAI")
-app = Dash(root, "bbtest.xlsx")
+app = Dash(root, "test.xlsx")
 root.mainloop()
-'''

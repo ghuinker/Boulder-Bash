@@ -21,18 +21,18 @@ class Leader(Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        self.male = Label(self, text = "Male")
-        self.female = Label(self, text = "Female")
+        self.male = Label(self, text = "Male", font='Helvetica 18 bold')
+        self.female = Label(self, text = "Female", font='Helvetica 18 bold')
 
-        self.open = Label(self, text = "Open")
-        self.advanced = Label(self, text= "Advanced")
-        self.int = Label(self, text = "Intermediate")
-        self.beg = Label(self, text = "Beginner")
+        self.open = Label(self, text = "Open", font='Helvetica 18 bold')
+        self.advanced = Label(self, text= "Advanced", font='Helvetica 18 bold')
+        self.int = Label(self, text = "Intermediate", font='Helvetica 18 bold')
+        self.beg = Label(self, text = "Beginner", font='Helvetica 18 bold')
 
-        self.open1 = Label(self, text = "Open")
-        self.advanced1 = Label(self, text= "Advanced")
-        self.int1 = Label(self, text = "Intermediate")
-        self.beg1 = Label(self, text = "Beginner")
+        self.open1 = Label(self, text = "Open", font='Helvetica 18 bold')
+        self.advanced1 = Label(self, text= "Advanced", font='Helvetica 18 bold')
+        self.int1 = Label(self, text = "Intermediate", font='Helvetica 18 bold')
+        self.beg1 = Label(self, text = "Beginner", font='Helvetica 18 bold')
 
         self.male.grid(row=0, column=0)
         self.female.grid(row=0, column=4)
