@@ -176,14 +176,6 @@ class Dash(Frame):
         self.scorebuts = []
 
         for row, routes in enumerate(SETUP_SCORES):
-            '''
-            min = len(SETUP_SCORES[0])
-            attemptmenu = OptionMenu(self, self.extraruns[row],0,
-             min+1, min+2, min+3, min+4, min+5, min+7, min+8, min+9, min+10,
-             min+11, min+12, min+13, min+14, min+15, min+17, min+18, min+19, min+20,
-             command=self.updateextraruns)
-            self.attemptmenus.append(attemptmenu)
-            '''
 
             temp =[]
 
@@ -212,11 +204,7 @@ class Dash(Frame):
         thirdcol = nextcol + routescorelen + 2
         row = 1
         for id, label in enumerate(self.numberlabels):
-            '''
-            if(id>middle):
-                col = nextcol
-                row=-middle
-            '''
+
             if(id>first):
                 col = nextcol
                 row =-first
@@ -237,11 +225,7 @@ class Dash(Frame):
         row=1
         for rowid, route in enumerate(self.scorebuts):
             for colid, check in enumerate(route):
-                '''
-                if(rowid>middle):
-                    col = nextcol + 1
-                    row=-middle
-                '''
+
                 if(rowid>first):
                     col = nextcol +1
                     row =-first
@@ -250,35 +234,6 @@ class Dash(Frame):
                     col = thirdcol +1
                     row = -second
                 check.grid(row=rowid+row, column=colid+col, pady= (0,0))
-
-        '''
-        col = 3
-        nextcol = col + self.routescorelen + 2
-        row = 1
-        for id, label in enumerate(self.numberlabels):
-            if(id>self.middle):
-                col = nextcol
-                row=-self.middle
-            label.grid(row=id+row, column = col)
-
-
-        self.namelab.grid(row=0, column=4)
-        self.sexlbl.grid(row=0, column=5)
-        self.skilllbl.grid(row=0, column=6)
-        self.scorelbl.grid(row=0, column=7)
-
-        col = 4
-        nextcol = nextcol + 1
-        row=1
-        for rowid, route in enumerate(self.scorebuts):
-            for colid, check in enumerate(route):
-                if(rowid>self.middle):
-                    col = nextcol + 1
-                    row=-self.middle
-                check.grid(row=rowid+row, column=colid+col, pady= (0,0))
-
-                self.attemptmenus[rowid].grid(row=rowid+row, column=colid+col+1, pady= (0,0))
-                '''
 
 
     def update(self):
@@ -446,8 +401,9 @@ class Dash(Frame):
         app = Leader(window, leaders)
 
 
-''' DEBUG'''
+''' DEBUG
 root = Tk()
 root.title("PolAI")
 app = Dash(root, "bbtest.xlsx")
 root.mainloop()
+'''
