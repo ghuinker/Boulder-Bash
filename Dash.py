@@ -176,13 +176,14 @@ class Dash(Frame):
         self.scorebuts = []
 
         for row, routes in enumerate(SETUP_SCORES):
-
+            '''
             min = len(SETUP_SCORES[0])
             attemptmenu = OptionMenu(self, self.extraruns[row],0,
              min+1, min+2, min+3, min+4, min+5, min+7, min+8, min+9, min+10,
              min+11, min+12, min+13, min+14, min+15, min+17, min+18, min+19, min+20,
              command=self.updateextraruns)
             self.attemptmenus.append(attemptmenu)
+            '''
 
             temp =[]
 
@@ -224,8 +225,9 @@ class Dash(Frame):
                     col = nextcol + 1
                     row=-self.middle
                 check.grid(row=rowid+row, column=colid+col, pady= (0,0))
+                '''
                 self.attemptmenus[rowid].grid(row=rowid+row, column=colid+col+1, pady= (0,0))
-
+                '''
 
 
     def update(self):
@@ -254,7 +256,6 @@ class Dash(Frame):
             for row, routes in enumerate(self.states):
                 falseroutes = 0
 
-                print(self.extraruns[row])
 
                 for col, state in enumerate(routes):
                     if routes[col].get() == True:
@@ -266,7 +267,7 @@ class Dash(Frame):
                     climber[row] = 0
 
     def updateextraruns(self, e):
-        print("update")
+        None
 
     def updatePlayer(self, e):
         self.namelab.config(text=SETUP_CLIMBERS[self.lb.curselection()[0]][0])
@@ -397,5 +398,5 @@ class Dash(Frame):
 ''' DEBUG'''
 root = Tk()
 root.title("PolAI")
-app = Dash(root, "test.xlsx")
+app = Dash(root, "bbtest.xlsx")
 root.mainloop()
