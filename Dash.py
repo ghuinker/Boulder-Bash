@@ -201,6 +201,57 @@ class Dash(Frame):
         self.selectbutton.grid(row=33, column=0)
         self.leaderbutton.grid(row=33, column=1)
 
+        routescorelen = len(SETUP_SCORES[0])
+        middle = math.ceil(len(SETUP_SCORES)/2.0)
+
+        first = math.ceil(len(SETUP_SCORES)/3.0)
+        second = first + first
+
+        col = 3
+        nextcol = col + routescorelen + 2
+        thirdcol = nextcol + routescorelen + 2
+        row = 1
+        for id, label in enumerate(self.numberlabels):
+            '''
+            if(id>middle):
+                col = nextcol
+                row=-middle
+            '''
+            if(id>first):
+                col = nextcol
+                row =-first
+            if(id>second):
+                col = thirdcol+1
+                row = -second
+            label.grid(row=id+row, column = col)
+
+
+        self.namelab.grid(row=0, column=4)
+        self.sexlbl.grid(row=0, column=5)
+        self.skilllbl.grid(row=0, column=6)
+        self.scorelbl.grid(row=0, column=7)
+
+        col = 4
+        nextcol = nextcol + 1
+        thirdcol = thirdcol + 1
+        row=1
+        for rowid, route in enumerate(self.scorebuts):
+            for colid, check in enumerate(route):
+                '''
+                if(rowid>middle):
+                    col = nextcol + 1
+                    row=-middle
+                '''
+                if(rowid>first):
+                    col = nextcol +1
+                    row =-first
+
+                if(rowid>second):
+                    col = thirdcol +1
+                    row = -second
+                check.grid(row=rowid+row, column=colid+col, pady= (0,0))
+
+        '''
         col = 3
         nextcol = col + self.routescorelen + 2
         row = 1
@@ -225,7 +276,7 @@ class Dash(Frame):
                     col = nextcol + 1
                     row=-self.middle
                 check.grid(row=rowid+row, column=colid+col, pady= (0,0))
-                '''
+
                 self.attemptmenus[rowid].grid(row=rowid+row, column=colid+col+1, pady= (0,0))
                 '''
 
