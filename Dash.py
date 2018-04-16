@@ -27,10 +27,12 @@ class Dash(Frame):
         self.setupsheet = self.bk.sheet_by_index(0)
         self.sendssheet = self.bk.sheet_by_index(1)
         self.scoressheet = self.bk.sheet_by_index(2)
+        self.attemptssheet = self.bk.sheet_by_index(3)
 
         self.initclimbers()
         self.initroutescores()
         self.initsends()
+        self.initattempts()
 
         self.grid()
         self.create_widgets()
@@ -47,29 +49,31 @@ class Dash(Frame):
 
     '''Read Excel sheet to get send climb of climbers Sets self.sends'''
     def initsends(self):
-        #Add Ticks
+
+        self.sends = self.readexcelattemptsandsends(self.sendssheet)
+        self.initsendstates()
+
+    def initattemptsstates(self):
+        self.attemptsstates = []
+
+    def initattempts(self):
+        self.attempts = self.readexcelattemptsandsends(self.attemptssheet)
+        self.initattemptsstates()
+
+    def readexcelattemptsandsends(self, sheet):
+        arr = []
         row = 1
         notempty = True
-
-        self.attempts = []
-        self.sends = []
-
         for row in range(len(self.climbers)):
             route = []
-            runs = []
 
             for col in range(len(self.routescores)):
                 try:
-                    route.append(int(self.sends.cell(row+1, col+1).value))
+                    route.append(int(sheet.cell(row+1, col+1).value))
                 except:
                     route.append(0)
-                var = IntVar()
-                var.set(0)
-                runs.append(var)
-
-            self.sends.append(route)
-            self.attempts.append(runs)
-        self.initsendstates()
+            arr.append(route)
+        return arr
 
     '''Setup climbing roster sets self.climbers'''
     def initclimbers(self):
@@ -281,13 +285,11 @@ class Dash(Frame):
             if route == 0:
                 continue
             route = route -1
-            self.attempts[self.curclimber][id].set(0)
+            self.sendstates[self.curclimber][id].set(0)
             try:
                 self.sendstates[id][route].set(1)
             except:
                 #Setup the states if the attempts are past the checkboxes
-                min = len(self.routescores[0])
-                self.attempts[self.curclimber][id].set(route+1)
                 self.sendstates[id][len(self.sendstates[id])-1].set(1)
         self.updatescore()
 
@@ -300,7 +302,7 @@ class Dash(Frame):
         newbk = xlsxwriter.Workbook(self.filename)
 
         setup = newbk.add_worksheet("Setup")
-        attempts = newbk.add_worksheet("Attempts")
+        sends = newbk.add_worksheet("Send Attempt")
         scores = newbk.add_worksheet("Scores")
         LeaderBoard = newbk.add_worksheet("LeaderBoard")
 
@@ -328,21 +330,21 @@ class Dash(Frame):
             for cols, score in enumerate(routes):
                 setup.write(rows, cols + 7, score)
 
-        '''Attempts Write'''
-        attempts.write('A1', 'Climber')
+        '''Sends Write'''
+        sends.write('A1', 'Climber')
 
         for cols in range(len(self.routescores)):
-            attempts.write(0, cols +1, cols+1)
+            sends.write(0, cols +1, cols+1)
 
         for rows, climber in enumerate(self.climbers):
-            attempts.write(rows+1, 0, climber[0])
+            sends.write(rows+1, 0, climber[0])
 
         for rows, climber in enumerate(self.sends):
             for cols, el in enumerate(climber):
-                attempts.write(rows+1, cols+1, el)
+                sends.write(rows+1, cols+1, el)
 
                 if self.attempts[rows][cols].get() != 0:
-                    attempts.write(rows+1, cols+1, self.attempts[rows][cols].get())
+                    sends.write(rows+1, cols+1, self.sends[rows][cols].get())
 
         '''Scores Write'''
         scores.write('A1', 'Climber')
