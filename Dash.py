@@ -29,9 +29,8 @@ class Dash(Frame):
         self.scoressheet = self.bk.sheet_by_index(2)
 
         self.initclimbers()
-        self.routescores()
-        self.initsend()
-        self.initSCORES()
+        self.initroutescores()
+        self.initsends()
 
         self.grid()
         self.create_widgets()
@@ -53,6 +52,7 @@ class Dash(Frame):
         notempty = True
 
         self.attempts = []
+        self.sends = []
 
         for row in range(len(self.climbers)):
             route = []
@@ -72,11 +72,11 @@ class Dash(Frame):
         self.initsendstates()
 
     '''Setup climbing roster sets self.climbers'''
-    def initinitclimbers(self):
+    def initclimbers(self):
 
         empty = xlrd.empty_cell.value
         set = self.setupsheet
-
+        self.climbers = []
         row = 1
 
         while(True):
@@ -93,6 +93,7 @@ class Dash(Frame):
 
     '''Sets up what the user added in setup excel for route section sets self.routescores'''
     def initroutescores(self):
+        self.routescores = []
         row = 1
         notempty = True
         while(notempty):
