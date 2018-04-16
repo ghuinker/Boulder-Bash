@@ -37,44 +37,6 @@ class Dash(Frame):
         self.grid()
         self.create_widgets()
 
-
-    '''Init checkboxes states array with a mutable boolean var sets self.sendstates'''
-    def initsendstates(self):
-        self.sendstates = []
-        for row, routes in enumerate(self.routescores):
-            temp = []
-            for scores in range(len(routes)):
-                temp.append(BooleanVar())
-            self.sendstates.append(temp)
-
-    '''Read Excel sheet to get send climb of climbers Sets self.sends'''
-    def initsends(self):
-
-        self.sends = self.readexcelattemptsandsends(self.sendssheet)
-        self.initsendstates()
-
-    def initattemptsstates(self):
-        self.attemptsstates = []
-
-    def initattempts(self):
-        self.attempts = self.readexcelattemptsandsends(self.attemptssheet)
-        self.initattemptsstates()
-
-    def readexcelattemptsandsends(self, sheet):
-        arr = []
-        row = 1
-        notempty = True
-        for row in range(len(self.climbers)):
-            route = []
-
-            for col in range(len(self.routescores)):
-                try:
-                    route.append(int(sheet.cell(row+1, col+1).value))
-                except:
-                    route.append(0)
-            arr.append(route)
-        return arr
-
     '''Setup climbing roster sets self.climbers'''
     def initclimbers(self):
 
@@ -118,6 +80,45 @@ class Dash(Frame):
                 self.routescores.append(route)
             row = row+1
 
+    '''Init self.sends'''
+    def initsends(self):
+        self.sends = self.readexcelattemptsandsends(self.sendssheet)
+        self.initsendstates()
+
+    '''Init checkboxes states array with a mutable boolean var sets self.sendstates'''
+    def initsendstates(self):
+        self.sendstates = []
+        for row, routes in enumerate(self.routescores):
+            temp = []
+            for scores in range(len(routes)):
+                temp.append(BooleanVar())
+            self.sendstates.append(temp)
+
+    '''Init self.attempts'''
+    def initattempts(self):
+        self.attempts = self.readexcelattemptsandsends(self.attemptssheet)
+        self.initattemptsstates()
+
+    '''Init states for drop down menu attempts'''
+    def initattemptsstates(self):
+        self.attemptsstates = []
+
+    '''Read excel for attempts and sends and return resulting array'''
+    def readexcelattemptsandsends(self, sheet):
+        arr = []
+        row = 1
+        notempty = True
+        for row in range(len(self.climbers)):
+            route = []
+
+            for col in range(len(self.routescores)):
+                try:
+                    route.append(int(sheet.cell(row+1, col+1).value))
+                except:
+                    route.append(0)
+            arr.append(route)
+        return arr
+    
     '''Creates widgets within tkinter screen'''
     def create_widgets(self):
         self.lb = Listbox(self, height= 40)
