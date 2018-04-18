@@ -19,6 +19,8 @@ class Dash(Frame):
     def __init__(self, master, url):
         Frame.__init__(self, master)
 
+        self.master = master
+
         self.curclimber = 0
         self.score = 0
 
@@ -118,11 +120,11 @@ class Dash(Frame):
                     route.append(0)
             arr.append(route)
         return arr
-    
+
     '''Creates widgets within tkinter screen'''
     def create_widgets(self):
-        self.lb = Listbox(self, height= 40)
-        self.lb.pack()
+
+        self.lb = Listbox(self)
 
         for climber in self.climbers:
             self.lb.insert(END, climber[0])
@@ -157,19 +159,6 @@ class Dash(Frame):
                 command=self.update)
                 temp.append(check)
             self.scorebuts.append(temp)
-
-
-        for id, climber in enumerate(self.attempts):
-            for row, route in enumerate(climber):
-                min = len(self.routescores[0])
-
-                attemptmenu = OptionMenu(self, self.attempts[id][row],0,
-                 min+1, min+2, min+3, min+4, min+5, min+7, min+8, min+9, min+10,
-                 min+11, min+12, min+13, min+14, min+15, min+17, min+18, min+19, min+20,
-                 command=self.updateextraruns)
-                runs.append(attemptmenu)
-            self.attemptmenus.append(runs)
-
 
         #Add TO Grid
         self.lb.grid(row=0, column=0, rowspan=32, columnspan=2)
@@ -217,7 +206,6 @@ class Dash(Frame):
                     col = thirdcol +1
                     row = -second
                 check.grid(row=rowid+row, column=colid+col, pady= (0,0))
-                self.attemptmenus[0][0].grid(row=rowid+row-1, column=colid+col+1, pady= (0,0))
 
 
     '''TODO'''
@@ -254,12 +242,9 @@ class Dash(Frame):
                         climber[row] = col +1
                     else:
                         falseroutes = falseroutes +1
-
-                    if(self.attempts[self.curclimber][row].get() != 0):
-                        climber[row] = self.attempts[self.curclimber][row].get()
-
                 if(falseroutes == col+1):
                     climber[row] = 0
+
 
     '''TODO'''
     def updateextraruns(self, e):
@@ -270,6 +255,12 @@ class Dash(Frame):
 
     '''When a clibmer is selected in left menu --- set curclimber and bar at top to that climber'''
     def updateClimber(self, e):
+        lboxfont = 17
+        lboxheight = self.master.winfo_height() -20
+        lboxheight = int(lboxheight/lboxfont)
+
+
+        self.lb.config(height=lboxheight)
         self.namelab.config(text=self.climbers[self.lb.curselection()[0]][0])
         self.sexlbl.config(text=self.climbers[self.lb.curselection()[0]][1])
         self.skilllbl.config(text=self.climbers[self.lb.curselection()[0]][2])
@@ -343,10 +334,7 @@ class Dash(Frame):
         for rows, climber in enumerate(self.sends):
             for cols, el in enumerate(climber):
                 sends.write(rows+1, cols+1, el)
-
-                if self.attempts[rows][cols].get() != 0:
-                    sends.write(rows+1, cols+1, self.sends[rows][cols].get())
-
+                
         '''Scores Write'''
         scores.write('A1', 'Climber')
         scores.write('B1', 'Score')
@@ -403,5 +391,5 @@ class Dash(Frame):
 ''' DEBUG'''
 root = Tk()
 root.title("Debugging")
-app = Dash(root, "test.xlsx")
+app = Dash(root, "bbtest.xlsx")
 root.mainloop()
