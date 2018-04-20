@@ -487,8 +487,9 @@ class Dash(Frame):
 
 
 
-''' DEBUG'''
+''' DEBUG
 root = Tk()
 root.title("Debugging")
 app = Dash(root, "test.xlsx")
 root.mainloop()
+'''
