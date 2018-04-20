@@ -12,7 +12,7 @@ class Main(Frame):
 
     def create_widgets(self):
         self.excelnamelbl = Label(self, text="Name of xcel file")
-        self.excelname = Text(self, width=30, height=1)
+        self.excelname = Entry(self, width=30)
         self.create = Button(self,text="Create", command=self.create)
         self.open = Button(self,text="Open", command=self.open)
 
@@ -42,9 +42,6 @@ class Main(Frame):
             setup.write('G1', 'Route')
             setup.write('H1', 'Scores')
 
-
-            '''Attempts Write'''
-            attempts.write('A1', 'Climber')
 
 
             print("saved")
