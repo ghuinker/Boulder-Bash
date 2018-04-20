@@ -22,13 +22,18 @@ class Dash(Frame):
         self.curclimber = 0
         self.score = 0
 
-        self.filename = url
-        self.bk = xlrd.open_workbook(self.filename)
+        for i in range(0,2):
+            try:
+                self.filename = url
+                self.bk = xlrd.open_workbook(self.filename)
 
-        self.setupsheet = self.bk.sheet_by_index(0)
-        self.initsetup()
+                self.setupsheet = self.bk.sheet_by_index(0)
+                self.initsetup()
 
-        self.sendssheet = self.bk.sheet_by_index(2)
+                self.sendssheet = self.bk.sheet_by_index(2)
+            except:
+                self.save()
+
         self.initsends()
 
         self.attemptssheets = []
@@ -418,6 +423,8 @@ class Dash(Frame):
         for rows, climber in enumerate(self.climbers):
             scores.write(rows+1, 0, climber[0])
 
+        if not hasattr(self, 'sends'):
+            self.sends =[]
         for id, climber in enumerate(self.sends):
             score = 0
             for route, send in enumerate(climber):
@@ -449,6 +456,8 @@ class Dash(Frame):
             for rows, climber in enumerate(self.climbers):
                 attemptheats[heat].write(rows+1, 0, climber[0])
 
+        if not hasattr(self, 'attempts'):
+            self.attempts =[]
         for heatid, heat in enumerate(self.attempts):
             for rows, climber in enumerate(heat):
                 for cols, el in enumerate(climber):
@@ -487,9 +496,8 @@ class Dash(Frame):
 
 
 
-''' DEBUG
+''' DEBUG'''
 root = Tk()
 root.title("Debugging")
-app = Dash(root, "test.xlsx")
+app = Dash(root, "C:\\Users\\ghuin\\Personal Projects\\Excel Files\\test.xlsx")
 root.mainloop()
-'''

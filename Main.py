@@ -55,10 +55,9 @@ class Main(Frame):
                 return
             name = self.mypath + "\\\\" + name
             workbook = xlsxwriter.Workbook(name+ '.xlsx')
-            setup = workbook.add_worksheet("Setup")
-            attempts = workbook.add_worksheet("Attempts")
-            scores = workbook.add_worksheet("Scores")
-            LeaderBoard = workbook.add_worksheet("LeaderBoard")
+            setup = newbk.add_worksheet("Setup")
+            scores = newbk.add_worksheet("Scores")
+            sends = newbk.add_worksheet("Sends")
 
             '''Setup Write'''
             setup.write('A1', 'First Name')
