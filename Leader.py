@@ -44,28 +44,28 @@ class Leader(Frame):
             for i in range(5):
                 Label(self, text = self.leaders[MALE][OPEN][i]).grid(row=2+i, column=0)
         except:
-            print("Not Enough Male Open")
+            None
 
         self.advanced.grid(row=7, column=0)
         try:
             for i in range(5):
                 Label(self, text = self.leaders[MALE][ADVANCED][i]).grid(row=8+i, column=0)
         except:
-            print("Not Enough Male ADVANCED")
+            None
 
         self.int.grid(row=1, column=3)
         try:
             for i in range(5):
                 Label(self, text = self.leaders[MALE][INTERMEDIATE][i]).grid(row=2+i, column=3)
         except:
-            print("Not Enough Male INTERMEDIATE")
+            None
 
         self.beg.grid(row=7, column=3)
         try:
             for i in range(5):
                 Label(self, text = self.leaders[MALE][BEGINNER][i]).grid(row=8+i, column=3)
         except:
-            print("Not Enough Male BEGINNER")
+            None
 
 
 
@@ -76,28 +76,28 @@ class Leader(Frame):
             for i in range(5):
                 Label(self, text = self.leaders[FEMALE][OPEN][i]).grid(row=2+i, column=4)
         except:
-            print("Not Enough Female OPEN")
+            None
 
         self.advanced1.grid(row=7, column=4)
         try:
             for i in range(5):
                 Label(self, text = self.leaders[FEMALE][ADVANCED][i]).grid(row=8+i, column=4)
         except:
-            print("Not Enough Female ADVANCED")
+            None
 
         self.int1.grid(row=1, column=7)
         try:
             for i in range(5):
                 Label(self, text = self.leaders[FEMALE][INTERMEDIATE][i]).grid(row=2+i, column=7)
         except:
-            print("Not Enough Female INTERMEDIATE")
+            None
 
         self.beg1.grid(row=7, column=7)
         try:
             for i in range(5):
                 Label(self, text = self.leaders[FEMALE][BEGINNER][i]).grid(row=8+i, column=7)
         except:
-            print("Not Enough Female BEGINNER")
+            None
 
 
 

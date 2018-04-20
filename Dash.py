@@ -4,13 +4,6 @@ import xlrd
 import xlsxwriter
 import math
 
-SETUP_SCORES = []
-SETUP_CLIMBERS = []
-
-ATTEMPTS = []
-SCORES = []
-
-
 MALE = 'm'
 FEMALE = 'f'
 BEGINNER = 'Beginner'
@@ -19,101 +12,53 @@ ADVANCED = 'Advanced'
 OPEN = 'Open'
 
 
-
-
 class Dash(Frame):
 
     def __init__(self, master, url):
         Frame.__init__(self, master)
 
-        self.routestates = []
-        self.curclimber = 0
+        self.master = master
+
+        self.curclimber = None
         self.score = 0
 
-        self.filename = url
-        self.bk = xlrd.open_workbook(self.filename)
-        self.setup = self.bk.sheet_by_index(0)
-        self.attempts = self.bk.sheet_by_index(1)
-        self.scores = self.bk.sheet_by_index(2)
+        for i in range(0,2):
+            try:
+                self.filename = url
+                self.bk = xlrd.open_workbook(self.filename)
 
-        self.initSETUP_CLIMBERS()
-        self.initSETUP_SCORES()
-        self.initATTEMPTS()
-        self.initSCORES()
+                self.setupsheet = self.bk.sheet_by_index(0)
+                self.initsetup()
 
+                self.sendssheet = self.bk.sheet_by_index(2)
+            except:
+                self.save()
+
+        self.initsends()
+
+        self.attemptssheets = []
+        try:
+            for i in range(self.heats):
+                self.attemptssheets.append(self.bk.sheet_by_index(3+i))
+        except:
+            self.resetattempts()
+
+        self.initattempts()
 
         self.grid()
         self.create_widgets()
 
+    def initsetup(self):
+        self.initclimbers()
+        self.initroutescores()
+        self.initheats()
 
-    def initroutestates(self):
-        self.states = []
-        for row, routes in enumerate(SETUP_SCORES):
-            temp = []
-            for scores in range(len(routes)):
-                temp.append(BooleanVar())
-            self.states.append(temp)
-
-
-
-
-
-    def initATTEMPTS(self):
-        #Add Ticks
-        row = 1
-        notempty = True
-
-        self.extraruns = []
-
-        for row in range(len(self.setupclimbers)):
-            route = []
-            var = IntVar()
-            var.set(0)
-            self.extraruns.append(var)
-
-            for col in range(len(self.setupscores)):
-                try:
-                    route.append(int(self.attempts.cell(row+1, col+1).value))
-                except:
-                    route.append(0)
-            ATTEMPTS.append(route)
-        self.attempts = ATTEMPTS
-        self.initroutestates()
-
-
-
-
-
-    def initSCORES(self):
-        #Add Scores
-        row = 1
-        notempty = True
-        global SCORES
-        while(notempty):
-            route = []
-            empty = xlrd.empty_cell.value
-            try:
-                self.scores.cell(row, 0)
-            except:
-                break
-            col = 1
-            while(True):
-                    try:
-                        route.append(int(self.scores.cell(row, col).value))
-                        col = col+1
-                    except:
-                        break
-            SCORES.append(route)
-            row = row+1
-        self.scores = SCORES
-
-
-
-    def initSETUP_CLIMBERS(self):
+    '''Setup climbing roster sets self.climbers'''
+    def initclimbers(self):
 
         empty = xlrd.empty_cell.value
-        set = self.setup
-
+        set = self.setupsheet
+        self.climbers = []
         row = 1
 
         while(True):
@@ -123,51 +68,128 @@ class Dash(Frame):
             except:
                 break
             else:
-                SETUP_CLIMBERS.append(
+                self.climbers.append(
                 [set.cell(row,0).value + " " + set.cell(row,1).value,
                  set.cell(row,2).value, set.cell(row,3).value, 0]  )
                 row = row +1
-        self.setupclimbers = SETUP_CLIMBERS
 
-    def initSETUP_SCORES(self):
-        #Add RouteSETUP_SCORES
+    '''Sets up what the user added in setup excel for route section sets self.routescores'''
+    def initroutescores(self):
+        self.routescores = []
         row = 1
         notempty = True
         while(notempty):
             route = []
             empty = xlrd.empty_cell.value
             try:
-                self.setup.cell(row, 6)
+                self.setupsheet.cell(row, 6)
             except:
                 break
             col = 7
             while(True):
                     try:
-                        route.append(int(self.setup.cell(row, col).value))
+                        route.append(int(self.setupsheet.cell(row, col).value))
                         col = col+1
                     except:
                         break
             if not not route:
-                SETUP_SCORES.append(route)
+                self.routescores.append(route)
             row = row+1
 
+    def initheats(self):
+        try:
+            self.heats = int(self.setupsheet.cell(1,5).value)
+        except:
+            self.heats = 2
 
-        self.setupscores=SETUP_SCORES
+        self.curheatstate = IntVar()
+        self.curheatstate.set(1)
+        self.curheat = 0
 
+    '''Init self.sends'''
+    def initsends(self):
+        self.sends = self.readexcelattemptsandsends(self.sendssheet)
+        self.initsendstates()
+
+    '''Init checkboxes states array with a mutable boolean var sets self.sendstates'''
+    def initsendstates(self):
+        self.sendstates = []
+        for row, routes in enumerate(self.routescores):
+            temp = []
+            for scores in range(len(routes)):
+                temp.append(BooleanVar())
+            self.sendstates.append(temp)
+
+    '''Init self.attempts'''
+    def initattempts(self):
+        self.attempts = []
+        for sheet in self.attemptssheets:
+            self.attempts.append(self.readexcelattemptsandsends(sheet))
+        self.initattemptsstates()
+
+
+    '''If the correct amount of attempt sheets are not on excel then fix that'''
+    def resetattempts(self):
+        self.attempts=[]
+        for heat in range(self.heats):
+            heattemp = []
+            for rows, climber in enumerate(self.climbers):
+                climbertemp=[]
+                for cols, el in enumerate(self.routescores):
+                    climbertemp.append(0)
+                heattemp.append(climbertemp)
+            self.attempts.append(heattemp)
+        self.save()
+
+    '''Init states for Entry attempts'''
+    def initattemptsstates(self):
+        self.attemptsstates = []
+        for row, routes in enumerate(self.routescores):
+            var = IntVar()
+            self.attemptsstates.append(var)
+
+    '''Read excel for attempts and sends and return resulting array'''
+    def readexcelattemptsandsends(self, sheet):
+        arr = []
+        row = 1
+        notempty = True
+        for row in range(len(self.climbers)):
+            route = []
+
+            for col in range(len(self.routescores)):
+                try:
+                    route.append(int(sheet.cell(row+1, col+1).value))
+                except:
+                    route.append(0)
+            arr.append(route)
+        return arr
+
+    '''Creates widgets within tkinter screen'''
     def create_widgets(self):
-        self.lb = Listbox(self, height= 40)
-        self.lb.pack()
 
-        for climber in SETUP_CLIMBERS:
+        self.lb = Listbox(self)
+
+        for climber in self.climbers:
             self.lb.insert(END, climber[0])
 
-        self.lb.bind('<<ListboxSelect>>', self.updatePlayer)
+        self.lb.bind('<<ListboxSelect>>', self.updateClimber)
 
-        self.selectbutton = Button(self, text="LeaderBoard", command=self.leaderboard)
-        self.leaderbutton = Button(self, text="Full Roster", command=None)
+        self.leaderboardbtn = Button(self, text="LeaderBoard", command=self.leaderboard)
+        self.fullroster = Button(self, text="Full Roster", command=None)
+
+        self.routestoscore = IntVar()
+        self.routestoscore.set(5)
+        self.routetoscoreentry = Entry(self, textvariable=self.routestoscore, width=3)
+
+        heatsoptions = []
+        for i in range(self.heats):
+            heatsoptions.append(i + 1)
+        self.heatselect = OptionMenu(self, self.curheatstate, command=self.updateheat, *heatsoptions)
+
+        self.savebtn = Button(self, text="Save", command=self.update)
 
         self.numberlabels = []
-        for route in range(len(SETUP_SCORES)):
+        for route in range(len(self.routescores)):
             label = Label(self, text = str(route + 1), font='Helvetica 18 bold')
             self.numberlabels.append(label)
 
@@ -176,38 +198,34 @@ class Dash(Frame):
         self.skilllbl = Label(self, text="Advanced")
         self.scorelbl = Label(self, text=self.score)
 
-        self.attemptmenus = []
+        self.attemptentrys = []
         self.scorebuts = []
 
-        for row, routes in enumerate(SETUP_SCORES):
-
-            min = len(SETUP_SCORES[0])
-            attemptmenu = OptionMenu(self, self.extraruns[row],0,
-             min+1, min+2, min+3, min+4, min+5, min+7, min+8, min+9, min+10,
-             min+11, min+12, min+13, min+14, min+15, min+17, min+18, min+19, min+20,
-             command=self.updateextraruns)
-            self.attemptmenus.append(attemptmenu)
-
+        for row, routes in enumerate(self.routescores):
             temp =[]
-
+            self.attemptentrys.append(Entry(self,
+             textvariable=self.attemptsstates[row],
+              width=3))
             for col, score in enumerate(routes):
                 check = Checkbutton(self, text=str(score),
-                variable = self.states[row][col],
+                variable = self.sendstates[row][col],
                 font='Helvetica 12',
                 command=self.update)
                 temp.append(check)
             self.scorebuts.append(temp)
 
-
         #Add TO Grid
         self.lb.grid(row=0, column=0, rowspan=32, columnspan=2)
-        self.selectbutton.grid(row=33, column=0)
-        self.leaderbutton.grid(row=33, column=1)
+        self.leaderboardbtn.grid(row=33, column=0)
+        self.fullroster.grid(row=33, column=1)
+        self.routetoscoreentry.grid(row=33, column=3)
+        self.heatselect.grid(row=33, column=4)
+        self.savebtn.grid(row=33, column=5)
 
-        routescorelen = len(SETUP_SCORES[0])
-        middle = math.ceil(len(SETUP_SCORES)/2.0)
+        routescorelen = len(self.routescores[0])
+        middle = math.ceil(len(self.routescores)/2.0)
 
-        first = math.ceil(len(SETUP_SCORES)/3.0)
+        first = math.ceil(len(self.routescores)/3.0)
         second = first + first
 
         col = 3
@@ -215,9 +233,13 @@ class Dash(Frame):
         thirdcol = nextcol + routescorelen + 2
         row = 1
         for id, label in enumerate(self.numberlabels):
-            if(id>middle):
+
+            if(id>first):
                 col = nextcol
-                row=-middle
+                row =-first
+            if(id>second):
+                col = thirdcol+1
+                row = -second
             label.grid(row=id+row, column = col)
 
 
@@ -228,43 +250,76 @@ class Dash(Frame):
 
         col = 4
         nextcol = nextcol + 1
-        thirdcol = nextcol + 1
+        thirdcol = thirdcol + 1
         row=1
         for rowid, route in enumerate(self.scorebuts):
             for colid, check in enumerate(route):
-                if(rowid>middle):
-                    col = nextcol + 1
-                    row=-middle
+
+                if(rowid>first):
+                    col = nextcol +1
+                    row =-first
+
+                if(rowid>second):
+                    col = thirdcol +1
+                    row = -second
                 check.grid(row=rowid+row, column=colid+col, pady= (0,0))
-                self.attemptmenus[rowid].grid(row=rowid+row, column=colid+col+1, pady= (0,0))
+                self.attemptentrys[rowid].grid(row=rowid+row, column=colid+col+1, pady= (0,0))
 
 
-
+    '''TODO'''
     def update(self):
-        self.updateATTEMPTS()
+        self.updatesend()
+        self.updateheat(0)
         self.updatescore()
         self.save()
 
+    '''Accessed when heatselect is updated'''
+    def updateheat(self, e):
+        self.updateattempts()
+        self.curheat = self.curheatstate.get()-1
+        self.updateattemptstates()
 
+    def updateattemptstates(self):
+        for rows in self.attemptsstates:
+            rows.set(0)
+        climber = self.attempts[self.curheat][self.curclimber]
+        for id, route in enumerate(self.attemptsstates):
+            route.set(climber[id])
+
+    def updateattempts(self):
+        if self.curclimber is not None:
+            climber = self.attempts[self.curheat][self.curclimber]
+            for id, state in enumerate(self.attemptsstates):
+                climber[id] = state.get()
+            self.save()
+
+
+    '''Updates the score for the person showed -- sets label at top bar for score'''
     def updatescore(self):
         self.score = 0
         if self.curclimber is not None:
-            climber = self.attempts[self.curclimber]
+            climber = self.sends[self.curclimber]
 
-        for route, attempt in enumerate(climber):
+        count = 0
+        for route, send in enumerate(reversed(climber)):
             add = 0
-            if attempt != 0:
+            if send != 0:
                 try:
-                    add = self.setupscores[route][attempt-1]
+                    add = self.routescores[len(climber)-1-route][send-1]
                 except:
-                    add = self.setupscores[route][len(self.setupscores[0])-1]
+                    add = self.routescores[len(climber)-1-route][len(self.routescores[0])-1]
+                if add > 0:
+                    count = count +1
+            if count>self.routestoscore.get():
+                break
             self.score = self.score + add
         self.scorelbl.config(text=str(self.score))
 
-    def updateATTEMPTS(self):
+    '''Updates the sends of climber when checkbox is clicked'''
+    def updatesend(self):
         if self.curclimber is not None:
-            climber = self.attempts[self.curclimber]
-            for row, routes in enumerate(self.states):
+            climber = self.sends[self.curclimber]
+            for row, routes in enumerate(self.sendstates):
                 falseroutes = 0
 
                 for col, state in enumerate(routes):
@@ -272,63 +327,66 @@ class Dash(Frame):
                         climber[row] = col +1
                     else:
                         falseroutes = falseroutes +1
-
                 if(falseroutes == col+1):
                     climber[row] = 0
 
-                if(self.extraruns[row].get() != 0):
-                    climber[row] = self.extraruns[row].get()
 
-
+    '''TODO'''
     def updateextraruns(self, e):
-        self.updateATTEMPTS()
-        self.updatePlayer(e)
-
+        self.updatesend()
+        self.updateattempts()
+        self.updateClimber(e)
         self.save()
 
-    def updatePlayer(self, e):
-        self.namelab.config(text=SETUP_CLIMBERS[self.lb.curselection()[0]][0])
-        self.sexlbl.config(text=SETUP_CLIMBERS[self.lb.curselection()[0]][1])
-        self.skilllbl.config(text=SETUP_CLIMBERS[self.lb.curselection()[0]][2])
-        self.scorelbl.config(text=SETUP_CLIMBERS[self.lb.curselection()[0]][3])
+    '''When a clibmer is selected in left menu --- set curclimber and bar at top to that climber'''
+    def updateClimber(self, e):
+        if self.curclimber is not None:
+            self.updateattempts()
+        lboxfont = 17
+        lboxheight = self.master.winfo_height() -20
+        lboxheight = int(lboxheight/lboxfont)
 
-        self.curclimber = self.lb.curselection()[0]
+        self.lb.config(height=lboxheight)
+        try:
+            self.namelab.config(text=self.climbers[self.lb.curselection()[0]][0])
+            self.sexlbl.config(text=self.climbers[self.lb.curselection()[0]][1])
+            self.skilllbl.config(text=self.climbers[self.lb.curselection()[0]][2])
+            self.scorelbl.config(text=self.climbers[self.lb.curselection()[0]][3])
 
-        for rows in self.states:
+
+            self.curclimber = self.lb.curselection()[0]
+        except:
+            None
+
+        for rows in self.sendstates:
             for cols in rows:
                 cols.set(0)
 
-        ticks = self.attempts[self.curclimber]
+        ticks = self.sends[self.curclimber]
         for id,  route in enumerate(ticks):
             if route == 0:
                 continue
             route = route -1
-            self.extraruns[id].set(0)
             try:
-                self.states[id][route].set(1)
+                self.sendstates[id][route].set(1)
             except:
                 #Setup the states if the attempts are past the checkboxes
-                min = len(SETUP_SCORES[0])
-                self.extraruns[id].set(route+1)
-                self.states[id][len(self.states[id])-1].set(1)
+                self.sendstates[id][len(self.sendstates[id])-1].set(1)
         self.updatescore()
+        self.updateattemptstates()
 
 
-    def leaderboard(self):
-        #Display leaderbod
-        window = Toplevel(self)
-        app = Leader(window)
 
+    '''Save the data to excel'''
     def save(self):
-
-        debugsave = "testfile.xlsx"
-
         newbk = xlsxwriter.Workbook(self.filename)
 
         setup = newbk.add_worksheet("Setup")
-        attempts = newbk.add_worksheet("Attempts")
         scores = newbk.add_worksheet("Scores")
-        LeaderBoard = newbk.add_worksheet("LeaderBoard")
+        sends = newbk.add_worksheet("Sends")
+        attemptheats= []
+        for i in range(self.heats):
+            attemptheats.append(newbk.add_worksheet("Attempts Heat " + str(i+1)))
 
         '''Setup Write'''
         setup.write('A1', 'First Name')
@@ -336,10 +394,13 @@ class Dash(Frame):
         setup.write('C1', 'Sex')
         setup.write('D1', 'Level')
 
+        setup.write('F1', 'Heats')
+        setup.write('F2', self.heats)
+
         setup.write('G1', 'Route')
         setup.write('H1', 'Scores')
 
-        for rows, climber in enumerate(self.setupclimbers):
+        for rows, climber in enumerate(self.climbers):
             for cols, el in enumerate(climber):
                 if cols ==0:
                     names = el.split(" ")
@@ -348,82 +409,100 @@ class Dash(Frame):
                 else:
                     setup.write(rows +1, cols+1, el)
 
-        for rows, routes in enumerate(self.setupscores):
+        for rows, routes in enumerate(self.routescores):
             rows = rows + 1
             setup.write(rows, 6, rows)
             for cols, score in enumerate(routes):
                 setup.write(rows, cols + 7, score)
 
-        '''Attempts Write'''
-        attempts.write('A1', 'Climber')
 
-        for cols in range(len(self.setupscores)):
-            attempts.write(0, cols +1, cols+1)
-
-        for rows, climber in enumerate(self.setupclimbers):
-            attempts.write(rows+1, 0, climber[0])
-
-        for rows, climber in enumerate(self.attempts):
-            for cols, el in enumerate(climber):
-                attempts.write(rows+1, cols+1, el)
-
-            if self.extraruns[rows].get() != 0:
-                attempts.write(rows+1, cols+1, self.extraruns[rows].get())
 
         '''Scores Write'''
         scores.write('A1', 'Climber')
         scores.write('B1', 'Score')
 
-        for cols in range(len(self.setupscores)):
+        for cols in range(len(self.routescores)):
             scores.write(0, cols +2, cols+1)
 
-        for rows, climber in enumerate(self.setupclimbers):
+        for rows, climber in enumerate(self.climbers):
             scores.write(rows+1, 0, climber[0])
 
-        for id, climber in enumerate(self.attempts):
+        if not hasattr(self, 'sends'):
+            self.sends =[]
+        for id, climber in enumerate(self.sends):
             score = 0
-            for route, attempt in enumerate(climber):
+            for route, send in enumerate(climber):
                 add = 0
-                if attempt != 0:
+                if send != 0:
                     try:
-                        add = self.setupscores[route][attempt-1]
+                        add = self.routescores[route][send-1]
                     except:
-                        add = self.setupscores[route][len(self.setupscores[0])-1]
+                        add = self.routescores[route][len(self.routescores[0])-1]
                     scores.write(id+1, route + 2, add)
                 score = score + add
             scores.write(id+1, 1, score)
 
+        '''Sends Write'''
+        for cols in range(len(self.routescores)):
+            sends.write(0, cols +1, cols+1)
+
+        for rows, climber in enumerate(self.climbers):
+            sends.write(rows+1, 0, climber[0])
+
+        for rows, climber in enumerate(self.sends):
+            for cols, el in enumerate(climber):
+                sends.write(rows+1, cols+1, el)
+
+        '''Attempts Write'''
+        for heat in range(self.heats):
+            for cols in range(len(self.routescores)):
+                attemptheats[heat].write(0, cols +1, cols+1)
+            for rows, climber in enumerate(self.climbers):
+                attemptheats[heat].write(rows+1, 0, climber[0])
+
+        if not hasattr(self, 'attempts'):
+            self.attempts =[]
+        for heatid, heat in enumerate(self.attempts):
+            for rows, climber in enumerate(heat):
+                for cols, el in enumerate(climber):
+                    attemptheats[heatid].write(rows+1, cols+1, el)
 
 
-
-        '''LeaderBoard Write'''
 
         newbk.close()
 
+    '''Sets and creates leaderboard LeaderBoard'''
     def leaderboard(self):
         leaders = []
 
-        for climber in self.setupclimbers:
+        for climber in self.climbers:
             leaders.append([climber[0], climber[1], climber[2]])
 
-        for id, climber in enumerate(self.attempts):
+        for id, climber in enumerate(self.sends):
             score = 0
-            for route, attempt in enumerate(climber):
+            count = 0
+            for route, send in enumerate(reversed(climber)):
                 add = 0
-                if attempt != 0:
+                if send != 0:
                     try:
-                        add = self.setupscores[route][attempt-1]
+                        add = self.routescores[len(climber)-1-route][send-1]
                     except:
-                        add = self.setupscores[route][len(self.setupscores[0])-1]
+                        add = self.routescores[len(climber)-1-route][len(self.routescores[0])-1]
+                    if add > 0:
+                        count = count +1
+                if count>self.routestoscore.get():
+                    break
                 score = score + add
             leaders[id].append(score)
-
         window = Toplevel(self)
         app = Leader(window, leaders)
 
 
-''' DEBUG'''
+
+
+''' DEBUG
 root = Tk()
-root.title("PolAI")
-app = Dash(root, "bbtest.xlsx")
+root.title("Debugging")
+app = Dash(root, "C:\\Users\\ghuin\\Personal Projects\\Excel Files\\test.xlsx")
 root.mainloop()
+'''
