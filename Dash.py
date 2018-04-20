@@ -101,9 +101,10 @@ class Dash(Frame):
             self.heats = int(self.setupsheet.cell(1,5).value)
         except:
             self.heats = 2
-        self.curheat = IntVar()
-        self.curheat.set(1)
 
+        self.curheatstate = IntVar()
+        self.curheatstate.set(1)
+        self.curheat = 1
     '''Init self.sends'''
     def initsends(self):
         self.sends = self.readexcelattemptsandsends(self.sendssheet)
@@ -181,7 +182,7 @@ class Dash(Frame):
         heatsoptions = []
         for i in range(self.heats):
             heatsoptions.append(i + 1)
-        self.heatselect = OptionMenu(self, self.curheat, command=self.updateheat, *heatsoptions)
+        self.heatselect = OptionMenu(self, self.curheatstate, command=self.updateheat, *heatsoptions)
 
         self.updateattemptsbtn = Button(self, text="Save Attempts", command=self.updateattempts)
 
@@ -272,18 +273,20 @@ class Dash(Frame):
 
     '''Accessed when heatselect is updated'''
     def updateheat(self, e):
+        self.updateattempts()
+        self.curheat = self.curheatstate.get()-1
         self.updateattemptstates()
 
     def updateattemptstates(self):
         for rows in self.attemptsstates:
             rows.set(0)
-        climber = self.attempts[self.curheat.get()-1][self.curclimber]
+        climber = self.attempts[self.curheat][self.curclimber]
         for id, route in enumerate(self.attemptsstates):
             route.set(climber[id])
 
     def updateattempts(self):
         if self.curclimber is not None:
-            climber = self.attempts[self.curheat.get()-1][self.curclimber]
+            climber = self.attempts[self.curheat][self.curclimber]
             for id, state in enumerate(self.attemptsstates):
                 try:
                     climber[id] = state.get()
@@ -338,6 +341,7 @@ class Dash(Frame):
 
     '''When a clibmer is selected in left menu --- set curclimber and bar at top to that climber'''
     def updateClimber(self, e):
+        self.updateattempts()
         lboxfont = 17
         lboxheight = self.master.winfo_height() -20
         lboxheight = int(lboxheight/lboxfont)
