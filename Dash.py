@@ -12,8 +12,6 @@ ADVANCED = 'Advanced'
 OPEN = 'Open'
 
 
-
-
 class Dash(Frame):
 
     def __init__(self, master, url):
@@ -38,6 +36,7 @@ class Dash(Frame):
 
         self.grid()
         self.create_widgets()
+
 
     '''Setup climbing roster sets self.climbers'''
     def initclimbers(self):
@@ -131,8 +130,12 @@ class Dash(Frame):
 
         self.lb.bind('<<ListboxSelect>>', self.updateClimber)
 
-        self.selectbutton = Button(self, text="LeaderBoard", command=self.leaderboard)
-        self.leaderbutton = Button(self, text="Full Roster", command=None)
+        self.leaderboardbtn = Button(self, text="LeaderBoard", command=self.leaderboard)
+        self.fullroster = Button(self, text="Full Roster", command=None)
+
+        self.routestoscore = IntVar()
+        self.routestoscore.set(5)
+        self.routetoscoreentry = Entry(self, textvariable=self.routestoscore)
 
         self.numberlabels = []
         for route in range(len(self.routescores)):
@@ -162,8 +165,9 @@ class Dash(Frame):
 
         #Add TO Grid
         self.lb.grid(row=0, column=0, rowspan=32, columnspan=2)
-        self.selectbutton.grid(row=33, column=0)
-        self.leaderbutton.grid(row=33, column=1)
+        self.leaderboardbtn.grid(row=33, column=0)
+        self.fullroster.grid(row=33, column=1)
+        self.routetoscoreentry.grid(row=33, column=2)
 
         routescorelen = len(self.routescores[0])
         middle = math.ceil(len(self.routescores)/2.0)
@@ -220,13 +224,18 @@ class Dash(Frame):
         if self.curclimber is not None:
             climber = self.sends[self.curclimber]
 
-        for route, attempt in enumerate(climber):
+        count = 0
+        for route, attempt in enumerate(reversed(climber)):
             add = 0
             if attempt != 0:
                 try:
-                    add = self.routescores[route][attempt-1]
+                    add = self.routescores[len(climber)-1-route][attempt-1]
                 except:
-                    add = self.routescores[route][len(self.routescores[0])-1]
+                    add = self.routescores[len(climber)-1-route][len(self.routescores[0])-1]
+                if add > 0:
+                    count = count +1
+            if count>self.routestoscore.get():
+                break
             self.score = self.score + add
         self.scorelbl.config(text=str(self.score))
 
@@ -277,7 +286,6 @@ class Dash(Frame):
             if route == 0:
                 continue
             route = route -1
-            self.sendstates[self.curclimber][id].set(0)
             try:
                 self.sendstates[id][route].set(1)
             except:
@@ -334,7 +342,7 @@ class Dash(Frame):
         for rows, climber in enumerate(self.sends):
             for cols, el in enumerate(climber):
                 sends.write(rows+1, cols+1, el)
-                
+
         '''Scores Write'''
         scores.write('A1', 'Climber')
         scores.write('B1', 'Score')
@@ -358,9 +366,6 @@ class Dash(Frame):
                 score = score + add
             scores.write(id+1, 1, score)
 
-
-
-
         '''LeaderBoard Write'''
 
         newbk.close()
@@ -374,22 +379,28 @@ class Dash(Frame):
 
         for id, climber in enumerate(self.sends):
             score = 0
-            for route, attempt in enumerate(climber):
+            count = 0
+            for route, attempt in enumerate(reversed(climber)):
                 add = 0
                 if attempt != 0:
                     try:
-                        add = self.routescores[route][attempt-1]
+                        add = self.routescores[len(climber)-1-route][attempt-1]
                     except:
-                        add = self.routescores[route][len(self.routescores[0])-1]
+                        add = self.routescores[len(climber)-1-route][len(self.routescores[0])-1]
+                    if add > 0:
+                        count = count +1
+                if count>self.routestoscore.get():
+                    break
                 score = score + add
             leaders[id].append(score)
-
         window = Toplevel(self)
         app = Leader(window, leaders)
+
+
 
 
 ''' DEBUG'''
 root = Tk()
 root.title("Debugging")
-app = Dash(root, "bbtest.xlsx")
+app = Dash(root, "test.xlsx")
 root.mainloop()
