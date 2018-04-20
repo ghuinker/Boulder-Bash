@@ -12,23 +12,12 @@ class Main(Frame):
     def __init__(self, master):
         Frame.__init__(self, master)
         self.grid()
+        self.initexcelfolder()
         self.initfileviewer()
         self.create_widgets()
 
-    def initfileviewer(self):
-        files = []
-        mypath = os.getcwd()
-        for (dirpath, dirnames, filenames) in walk(mypath):
-            files.extend(filenames)
-            break
 
-        self.excelfiles = []
-        for filename in files:
-            split = filename.split('.')
-            if split[1] == 'xlsx':
-                self.excelfiles.append(split[0])
-        print(self.excelfiles)
-        self.curfile = None
+
 
 
     def create_widgets(self):
@@ -60,10 +49,11 @@ class Main(Frame):
         name = self.excelname.get().strip()
         if name in self.excelfiles:
             self.runexcel()
+
         else:
-            print(name)
             if name == '':
                 return
+            name = self.mypath + "\\\\" + name
             workbook = xlsxwriter.Workbook(name+ '.xlsx')
             setup = workbook.add_worksheet("Setup")
             attempts = workbook.add_worksheet("Attempts")
@@ -75,7 +65,7 @@ class Main(Frame):
             setup.write('B1', 'Last Name')
             setup.write('C1', 'Sex')
             setup.write('D1', 'Level')
-            
+
             setup.write('F1', 'Heats')
             setup.write('G1', 'Route')
             setup.write('H1', 'Scores')
@@ -84,11 +74,23 @@ class Main(Frame):
             self.openexcel()
             self.updatefileviewer()
 
+    def initfileviewer(self):
+        files = []
+
+        for (dirpath, dirnames, filenames) in walk(self.mypath):
+            files.extend(filenames)
+            break
+
+        self.excelfiles = []
+        for filename in files:
+            split = filename.split('.')
+            if split[1] == 'xlsx':
+                self.excelfiles.append(split[0])
+        self.curfile = None
 
     def updatefileviewer(self):
         files = []
-        mypath = os.getcwd()
-        for (dirpath, dirnames, filenames) in walk(mypath):
+        for (dirpath, dirnames, filenames) in walk(self.mypath):
             files.extend(filenames)
             break
 
@@ -102,6 +104,20 @@ class Main(Frame):
         for excelfile in self.excelfiles:
             self.lb.insert(END, excelfile)
 
+    def initexcelfolder(self):
+        self.mypath = os.getcwd()
+        splitpath = self.mypath.split('\\')
+        splitpath = splitpath[:-1]
+        up = ""
+        for str in splitpath:
+            up = up + str + '\\\\'
+
+
+        up = up + "Excel Files"
+        if not os.path.exists(up):
+            os.makedirs(up)
+        self.mypath = up
+
     def excelclicked(self, e):
         try:
             self.curfile = self.lb.curselection()[0]
@@ -111,16 +127,22 @@ class Main(Frame):
         self.excelname.insert(0,self.excelfiles[self.curfile])
 
     def deletefile(self):
-        os.remove(self.excelname.get() + '.xlsx')
+        name = self.excelname.get()
+        name = self.mypath + "\\\\" + name
+        os.remove(name + '.xlsx')
         self.updatefileviewer()
 
     def openexcel(self):
-        file = self.excelname.get() + '.xlsx'
-        os.startfile(file)
+        name = self.excelname.get()
+        name = self.mypath + "\\\\" + name
+        os.startfile(name + '.xlsx')
 
     def runexcel(self):
         window = Toplevel(self)
-        app = Dash(window, self.excelname.get() + '.xlsx')
+        name = self.excelname.get()
+        name = self.mypath + "\\\\" + name
+        name = name.replace("\\\\", "\\")
+        app = Dash(window, name + '.xlsx')
 
     def quit(self):
         self.master.destroy()
