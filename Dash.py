@@ -181,7 +181,7 @@ class Dash(Frame):
         heatsoptions = []
         for i in range(self.heats):
             heatsoptions.append(i + 1)
-        self.heatselect = OptionMenu(self, self.curheat, *heatsoptions)
+        self.heatselect = OptionMenu(self, self.curheat, command=self.updateheat, *heatsoptions)
 
         self.updateattemptsbtn = Button(self, text="Save Attempts", command=self.updateattempts)
 
@@ -271,8 +271,8 @@ class Dash(Frame):
         self.save()
 
     '''Accessed when heatselect is updated'''
-    def updateheat(self):
-        self.updateClimber()
+    def updateheat(self, e):
+        self.updateattemptstates()
 
     def updateattemptstates(self):
         for rows in self.attemptsstates:
