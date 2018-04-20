@@ -186,7 +186,7 @@ class Dash(Frame):
             heatsoptions.append(i + 1)
         self.heatselect = OptionMenu(self, self.curheatstate, command=self.updateheat, *heatsoptions)
 
-        self.updateattemptsbtn = Button(self, text="Save", command=self.update)
+        self.savebtn = Button(self, text="Save", command=self.update)
 
         self.numberlabels = []
         for route in range(len(self.routescores)):
@@ -220,7 +220,7 @@ class Dash(Frame):
         self.fullroster.grid(row=33, column=1)
         self.routetoscoreentry.grid(row=33, column=3)
         self.heatselect.grid(row=33, column=4)
-        self.updateattemptsbtn.grid(row=33, column=5)
+        self.savebtn.grid(row=33, column=5)
 
         routescorelen = len(self.routescores[0])
         middle = math.ceil(len(self.routescores)/2.0)
@@ -291,7 +291,7 @@ class Dash(Frame):
             climber = self.attempts[self.curheat][self.curclimber]
             for id, state in enumerate(self.attemptsstates):
                 climber[id] = state.get()
-                self.save()
+            self.save()
 
 
     '''Updates the score for the person showed -- sets label at top bar for score'''
@@ -500,8 +500,9 @@ class Dash(Frame):
 
 
 
-''' DEBUG'''
+''' DEBUG
 root = Tk()
 root.title("Debugging")
 app = Dash(root, "C:\\Users\\ghuin\\Personal Projects\\Excel Files\\test.xlsx")
 root.mainloop()
+'''

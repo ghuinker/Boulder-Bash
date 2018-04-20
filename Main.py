@@ -38,8 +38,8 @@ class Main(Frame):
         self.excelnamelbl.grid(row=0, column = 0)
         self.excelname.grid(row=0, column=1, columnspan=3)
         self.create.grid(row=1, column=0)
-        self.openexcelbtn.grid(row=1, column=1)
-        self.runbtn.grid(row=1, column=2)
+        self.runbtn.grid(row=1, column=1)
+        self.openexcelbtn.grid(row=1, column=2)
         self.deletebtn.grid(row=1, column=3)
 
 
