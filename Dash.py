@@ -19,7 +19,7 @@ class Dash(Frame):
 
         self.master = master
 
-        self.curclimber = 0
+        self.curclimber = None
         self.score = 0
 
         for i in range(0,2):
@@ -104,7 +104,8 @@ class Dash(Frame):
 
         self.curheatstate = IntVar()
         self.curheatstate.set(1)
-        self.curheat = 1
+        self.curheat = 0
+
     '''Init self.sends'''
     def initsends(self):
         self.sends = self.readexcelattemptsandsends(self.sendssheet)
@@ -125,6 +126,7 @@ class Dash(Frame):
         for sheet in self.attemptssheets:
             self.attempts.append(self.readexcelattemptsandsends(sheet))
         self.initattemptsstates()
+
 
     '''If the correct amount of attempt sheets are not on excel then fix that'''
     def resetattempts(self):
@@ -184,7 +186,7 @@ class Dash(Frame):
             heatsoptions.append(i + 1)
         self.heatselect = OptionMenu(self, self.curheatstate, command=self.updateheat, *heatsoptions)
 
-        self.updateattemptsbtn = Button(self, text="Save Attempts", command=self.updateattempts)
+        self.updateattemptsbtn = Button(self, text="Save", command=self.update)
 
         self.numberlabels = []
         for route in range(len(self.routescores)):
@@ -267,7 +269,7 @@ class Dash(Frame):
     '''TODO'''
     def update(self):
         self.updatesend()
-        self.updateattemptstates()
+        self.updateheat(0)
         self.updatescore()
         self.save()
 
@@ -288,11 +290,8 @@ class Dash(Frame):
         if self.curclimber is not None:
             climber = self.attempts[self.curheat][self.curclimber]
             for id, state in enumerate(self.attemptsstates):
-                try:
-                    climber[id] = state.get()
-                    self.save()
-                except:
-                    None
+                climber[id] = state.get()
+                self.save()
 
 
     '''Updates the score for the person showed -- sets label at top bar for score'''
@@ -341,7 +340,8 @@ class Dash(Frame):
 
     '''When a clibmer is selected in left menu --- set curclimber and bar at top to that climber'''
     def updateClimber(self, e):
-        self.updateattempts()
+        if self.curclimber is not None:
+            self.updateattempts()
         lboxfont = 17
         lboxheight = self.master.winfo_height() -20
         lboxheight = int(lboxheight/lboxfont)
