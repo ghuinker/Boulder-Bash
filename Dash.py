@@ -1,5 +1,6 @@
 from tkinter import *
 from Leader import Leader
+from FullRoster import FullRoster
 import xlrd
 import xlsxwriter
 import math
@@ -175,7 +176,7 @@ class Dash(Frame):
         self.lb.bind('<<ListboxSelect>>', self.updateClimber)
 
         self.leaderboardbtn = Button(self, text="LeaderBoard", command=self.leaderboard)
-        self.fullroster = Button(self, text="Full Roster", command=None)
+        self.fullroster = Button(self, text="Full Roster", command=self.fullroster)
 
         self.routestoscore = IntVar()
         self.routestoscore.set(5)
@@ -497,12 +498,36 @@ class Dash(Frame):
         window = Toplevel(self)
         app = Leader(window, leaders)
 
+    '''Sets and creates FulleRoster'''
+    def fullroster(self):
+        leaders = []
+
+        for climber in self.climbers:
+            leaders.append([climber[0], climber[1], climber[2]])
+
+        for id, climber in enumerate(self.sends):
+            score = 0
+            count = 0
+            for route, send in enumerate(reversed(climber)):
+                add = 0
+                if send != 0:
+                    try:
+                        add = self.routescores[len(climber)-1-route][send-1]
+                    except:
+                        add = self.routescores[len(climber)-1-route][len(self.routescores[0])-1]
+                    if add > 0:
+                        count = count +1
+                if count>self.routestoscore.get():
+                    break
+                score = score + add
+            leaders[id].append(score)
+        window = Toplevel(self)
+        app = FullRoster(window, leaders)
 
 
 
-''' DEBUG
+''' DEBUG'''
 root = Tk()
 root.title("Debugging")
-app = Dash(root, "C:\\Users\\ghuin\\Personal Projects\\Excel Files\\test.xlsx")
+app = Dash(root, "C:\\Users\\ghuin\\Personal Projects\\Excel Files\\bbtest.xlsx")
 root.mainloop()
-'''
