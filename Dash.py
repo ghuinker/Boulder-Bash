@@ -526,8 +526,9 @@ class Dash(Frame):
 
 
 
-''' DEBUG'''
+''' DEBUG
 root = Tk()
 root.title("Debugging")
 app = Dash(root, "C:\\Users\\ghuin\\Personal Projects\\Excel Files\\bbtest.xlsx")
 root.mainloop()
+'''

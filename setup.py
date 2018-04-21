@@ -18,7 +18,7 @@ executables = [
 ]
 
 setup(name='editor',
-      version = '1.0',
+      version = '2.0',
       description = '',
       options = dict(build_exe = buildOptions),
       executables = executables)
